@@ -1,0 +1,42 @@
+mod VENUS-SYNTAX is
+    protecting INT .
+    protecting QID .
+
+    sort Var .
+    subsort Qid < Var .
+
+    sort AExpr .
+    subsort Var < AExpr .
+    subsort Int < AExpr .
+
+    --- Replaced [ditto] with explicit attributes to prevent conflicts
+    op _+_ : AExpr AExpr -> AExpr [ditto] .
+    op _/_ : AExpr AExpr -> AExpr [prec 31 gather (E e)] .
+    op _-_ : AExpr AExpr -> AExpr [ditto] .
+    op _*_ : AExpr AExpr -> AExpr [ditto] .
+    op _%_ : AExpr AExpr -> AExpr [prec 31 gather (E e)] .
+
+    sort BExpr .
+    ops true false : -> BExpr .
+    op not_ : BExpr -> BExpr [prec 53] .
+    op _and_ : BExpr BExpr -> BExpr [prec 55 gather (e E)] .
+    op _lt_ : AExpr AExpr -> BExpr [prec 37] .
+    op _gt_ : AExpr AExpr -> BExpr [prec 37] .
+    op _eq_ : AExpr AExpr -> BExpr [prec 37] .
+    op _lte_ : AExpr AExpr -> BExpr [prec 37] .
+    op _gte_ : AExpr AExpr -> BExpr [prec 37] .
+    op _neq_ : AExpr AExpr -> BExpr [prec 37] .
+
+
+    sort Inst .
+    op skip : -> Inst .
+    op _:=_ : Var AExpr -> Inst [prec 60] .
+    op _;_ : Inst Inst -> Inst [prec 70 gather (e E)] .
+    
+    op if _ then _ else _ fi : BExpr Inst Inst -> Inst [prec 65] .
+    op while _ do _ od : BExpr Inst -> Inst [prec 65] .
+    op for ( _ , _ , _ ) do _ od : Inst BExpr Inst Inst -> Inst [prec 65] .
+    
+endm 
+
+

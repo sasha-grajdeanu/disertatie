@@ -1,0 +1,110 @@
+load venus-lang-transition-machine.maude
+
+mod TEST is 
+    protecting VENUS-TS .
+
+    --- Notice how every variable now starts with a quote, like 'n or 'sum
+    op sumPgm : -> Inst .
+    eq sumPgm = 
+        'n := 100 ;
+        'i := 1 ;
+        'sum := 0 ;
+        while ('i lt ('n + 1)) do
+            'sum := 'sum + 'i ;
+            'i := 'i + 1
+        od .
+
+    op maxPgm : -> Inst .
+    eq maxPgm = 
+        'firstValue := 15 ;     --- We can use any long names we want now!
+        'secondValue := 42 ;
+        if ('firstValue lt 'secondValue) then
+            'maxValue := 'secondValue
+        else
+            'maxValue := 'firstValue
+        fi .
+
+    op logPgm : -> Inst .
+    eq logPgm =
+        'number := 32 ;
+        'counter := 0 ;
+        while (1 lt 'number) do
+            'number := 'number / 2 ;
+            'counter := 'counter + 1
+        od .
+
+    op forPgm : -> Inst .
+    eq forPgm = 
+        'total := 0 ;
+        for ( 'iterator := 1 , 'iterator lt 101 , 'iterator := 'iterator + 1 ) do
+            'total := 'total + 'iterator
+        od .
+
+    --- PROGRAM 1: Tests FOR, NEQ, LTE, IF, +
+    --- Logic: Sums numbers from 1 to 5, but completely skips the number 3.
+    op skipThreePgm : -> Inst .
+    eq skipThreePgm = 
+        'sum := 0 ;
+        for ( 'i := 1 , 'i lte 5 , 'i := 'i + 1 ) do
+            if ('i neq 3) then
+                'sum := 'sum + 'i
+            else
+                skip
+            fi
+        od .
+
+    --- PROGRAM 2: Tests AND, GTE, LTE, NOT, GT, EQ
+    --- Logic: Checks if a value (25) is safely between 10 and 20.
+    op boundsCheckPgm : -> Inst .
+    eq boundsCheckPgm =
+        'val := 25 ;
+        --- Use 1 for true, 0 for false
+        if ( ('val gte 10) and ('val lte 20) ) then
+            'isSafe := 1
+        else
+            'isSafe := 0
+        fi ;
+        --- Check if it is false (0)
+        if ('isSafe eq 0) then
+            'status := 0
+        else
+            'status := 1
+        fi .
+
+    --- PROGRAM 3: Tests WHILE, GT, EQ, /, +
+    --- Logic: Halves a number until it hits 0, but intercepts the number 50 and adds 1 to it to change the division path.
+    op divPgm : -> Inst .
+    eq divPgm =
+        'x := 100 ;
+        'steps := 0 ;
+        while ('x gt 0) do
+            if ('x eq 50) then
+                'x := 'x + 1   --- Intercept! Next loop does 51 / 2
+            else
+                'x := 'x / 2
+            fi ;
+            'steps := 'steps + 1
+        od .
+    
+    op gcdPgm : -> Inst .
+    eq gcdPgm =
+        'a := 48 ;
+        'b := 18 ;
+        while ('b neq 0) do
+            'temp := 'b ;
+            'b := 'a % 'b ;
+            'a := 'temp
+        od ;
+        'difference := 48 - 18 ;
+        'product := 48 * 18 .
+
+    --- PROGRAM 5: The "Crash" Test
+    --- Logic: Attempts to divide by zero. 
+    --- Result: Instead of crashing Maude, it gets safely stuck with cDiv on the control stack.
+    op zeroPgm : -> Inst .
+    eq zeroPgm =
+        'x := 10 ;
+        'y := 0 ;
+        'z := 'x / 'y ;
+        'x := 99 . --- This will never execute!
+endm
