@@ -9,17 +9,17 @@ mod VENUS-SYNTAX is
     subsort Var < AExpr .
     subsort Int < AExpr .
 
-    --- Replaced [ditto] with explicit attributes to prevent conflicts
     op _+_ : AExpr AExpr -> AExpr [ditto] .
-    op _/_ : AExpr AExpr -> AExpr [prec 31 gather (E e)] .
     op _-_ : AExpr AExpr -> AExpr [ditto] .
     op _*_ : AExpr AExpr -> AExpr [ditto] .
+    op _/_ : AExpr AExpr -> AExpr [prec 31 gather (E e)] .
     op _%_ : AExpr AExpr -> AExpr [prec 31 gather (E e)] .
 
     sort BExpr .
     ops true false : -> BExpr .
     op not_ : BExpr -> BExpr [prec 53] .
     op _and_ : BExpr BExpr -> BExpr [prec 55 gather (e E)] .
+    
     op _lt_ : AExpr AExpr -> BExpr [prec 37] .
     op _gt_ : AExpr AExpr -> BExpr [prec 37] .
     op _eq_ : AExpr AExpr -> BExpr [prec 37] .
@@ -27,6 +27,14 @@ mod VENUS-SYNTAX is
     op _gte_ : AExpr AExpr -> BExpr [prec 37] .
     op _neq_ : AExpr AExpr -> BExpr [prec 37] .
 
+    --- ==========================================
+    --- SINTAXA UNIFICATĂ PENTRU LISTE
+    --- Am rezolvat conflictul folosind o singură listă
+    --- ==========================================
+    sort List .
+    subsort AExpr < List .
+    op emptyList : -> List .
+    op _,_ : List List -> List [assoc id: emptyList prec 58] .
 
     sort Inst .
     op skip : -> Inst .
@@ -36,7 +44,8 @@ mod VENUS-SYNTAX is
     op if _ then _ else _ fi : BExpr Inst Inst -> Inst [prec 65] .
     op while _ do _ od : BExpr Inst -> Inst [prec 65] .
     op for ( _ , _ , _ ) do _ od : Inst BExpr Inst Inst -> Inst [prec 65] .
-    
-endm 
 
-
+    --- Precedența ajustată (65) pentru a nu intra în conflict cu ';' (70)
+    op def _ ( _ ) { _ } : Var List Inst -> Inst [prec 65] .
+    op call _ ( _ ) : Var List -> Inst [prec 65] .
+endm
