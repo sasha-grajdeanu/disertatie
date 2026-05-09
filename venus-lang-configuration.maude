@@ -1,0 +1,54 @@
+load venus-lang-syntax.maude
+
+mod VENUS-CONFIG is
+    protecting VENUS-SYNTAX .
+
+    sort Control .
+    subsort Inst < Control .
+    subsort AExpr < Control .
+    subsort BExpr < Control .
+    subsort List < Control .
+    ops cAdd cSub cMul cDiv cMod cNot cAnd cLt cAssign cSkip cIf cWhile cGt cEq cLte cGte cNeq : -> Control .
+    op cCall : Var -> Control . 
+    op cBind : List -> Control . 
+    op cNil : -> Control .
+    op _#_ : Control Control -> Control [assoc id: cNil] .
+
+    sort Stack .
+    subsort Inst < Stack .
+    subsort Var < Stack .
+    subsort Int < Stack .
+    subsort BExpr < Stack .
+    subsort List < Stack .
+    op sNil : -> Stack .
+    op _$_ : Stack Stack -> Stack [assoc id: sNil] .
+
+    sort Memory .
+    op _->_ : Var Int -> Memory .
+    op _=>[_,_] : Var List Inst -> Memory .
+    op empty : -> Memory .
+    op _,_ : Memory Memory -> Memory [assoc id: empty] .
+
+    var M : Memory .
+    vars X Y Z : Var .
+    vars N N' : Int .
+    vars L L1 L2 : List .
+    vars E E1 E2 : AExpr .
+    vars S S1 S2 : Inst .
+
+    op update : Memory Var Int -> Memory .
+    eq update(empty, X, N) = (X -> N) .
+    eq update(((X -> N') , M), X, N) = (X -> N) , M .
+    ceq update(((Y -> N') , M), X, N) = (Y -> N') , update(M, X, N) if Y =/= X .
+    eq update(((Y => [L, S1]) , M), Z, N) = (Y => [L, S1]) , update(M, Z, N) .
+
+    op undefined : -> Int .
+    op get : Memory Var -> Int .
+    eq get(empty, X) = undefined .
+    eq get(((X -> N) , M), X) = N .
+    ceq get(((Y -> N) , M), X) = get(M, X) if X =/= Y .
+    eq get(((Y => [L, S1]) , M), Z) = get(M, Z) .
+
+    sort State .
+    op <_|_|_> : Control Stack Memory -> State .
+endm

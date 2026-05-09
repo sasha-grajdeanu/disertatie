@@ -1,0 +1,46 @@
+mod VENUS-BOOLEAN is
+    protecting VENUS-CONFIG .
+
+    var CTRL : Control .
+    var STK : Stack .
+    var MRY : Memory .
+    vars B B1 B2 : BExpr .
+    vars N1 N2 : Int .
+    vars E1 E2 : AExpr .
+
+    --- Boolean Expressions
+    rl [TrueControl] : < true # CTRL | STK | MRY > => < CTRL | true $ STK | MRY > .
+    rl [FalseControl] : < false # CTRL | STK | MRY > => < CTRL | false $ STK | MRY > .
+
+    rl [NotControl] : < (not B) # CTRL | STK | MRY > => < B # cNot # CTRL | STK | MRY > .
+    rl [NotEvalTrue] : < cNot # CTRL | true $ STK | MRY > => < CTRL | false $ STK | MRY > .
+    rl [NotEvalFalse] : < cNot # CTRL | false $ STK | MRY > => < CTRL | true $ STK | MRY > .
+
+    rl [AndControl] : < (B1 and B2) # CTRL | STK | MRY > => < B1 # B2 # cAnd # CTRL | STK | MRY > .
+    rl [AndEvalTrue] : < cAnd # CTRL | B $ true $ STK | MRY > => < CTRL | B $ STK | MRY > .
+    rl [AndEvalFalse] : < cAnd # CTRL | B $ false $ STK | MRY > => < CTRL | false $ STK | MRY > .
+
+    rl [LtControl] : < (E1 lt E2) # CTRL | STK | MRY > => < E1 # E2 # cLt # CTRL | STK | MRY > .
+    crl [LtEvalTrue] : < cLt # CTRL | N2 $ N1 $ STK | MRY > => < CTRL | true $ STK | MRY > if (N1 < N2) .
+    crl [LtEvalFalse] : < cLt # CTRL | N2 $ N1 $ STK | MRY > => < CTRL | false $ STK | MRY > if (N1 >= N2) .
+
+    rl [GtControl] : < (E1 gt E2) # CTRL | STK | MRY > => < E1 # E2 # cGt # CTRL | STK | MRY > .
+    crl [GtEvalTrue] : < cGt # CTRL | N2 $ N1 $ STK | MRY > => < CTRL | true $ STK | MRY > if (N1 > N2) .
+    crl [GtEvalFalse] : < cGt # CTRL | N2 $ N1 $ STK | MRY > => < CTRL | false $ STK | MRY > if (N1 <= N2) .
+
+    rl [EqControl] : < (E1 eq E2) # CTRL | STK | MRY > => < E1 # E2 # cEq # CTRL | STK | MRY > .
+    crl [EqEvalTrue] : < cEq # CTRL | N2 $ N1 $ STK | MRY > => < CTRL | true $ STK | MRY > if (N1 == N2) .
+    crl [EqEvalFalse] : < cEq # CTRL | N2 $ N1 $ STK | MRY > => < CTRL | false $ STK | MRY > if (N1 =/= N2) .
+
+    rl [LteControl] : < (E1 lte E2) # CTRL | STK | MRY > => < E1 # E2 # cLte # CTRL | STK | MRY > .
+    crl [LteEvalTrue] : < cLte # CTRL | N2 $ N1 $ STK | MRY > => < CTRL | true $ STK | MRY > if (N1 <= N2) .
+    crl [LteEvalFalse] : < cLte # CTRL | N2 $ N1 $ STK | MRY > => < CTRL | false $ STK | MRY > if (N1 > N2) .
+
+    rl [GteControl] : < (E1 gte E2) # CTRL | STK | MRY > => < E1 # E2 # cGte # CTRL | STK | MRY > .
+    crl [GteEvalTrue] : < cGte # CTRL | N2 $ N1 $ STK | MRY > => < CTRL | true $ STK | MRY > if (N1 >= N2) .
+    crl [GteEvalFalse] : < cGte # CTRL | N2 $ N1 $ STK | MRY > => < CTRL | false $ STK | MRY > if (N1 < N2) .
+
+    rl [NeqControl] : < (E1 neq E2) # CTRL | STK | MRY > => < E1 # E2 # cNeq # CTRL | STK | MRY > .
+    crl [NeqEvalTrue] : < cNeq # CTRL | N2 $ N1 $ STK | MRY > => < CTRL | true $ STK | MRY > if (N1 =/= N2) .
+    crl [NeqEvalFalse] : < cNeq # CTRL | N2 $ N1 $ STK | MRY > => < CTRL | false $ STK | MRY > if (N1 == N2) .
+endm

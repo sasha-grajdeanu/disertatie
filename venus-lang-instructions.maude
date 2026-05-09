@@ -1,0 +1,28 @@
+mod VENUS-INSTRUCTIONS is
+    protecting VENUS-CONFIG .
+
+    var CTRL : Control .
+    var STK : Stack .
+    var MRY : Memory .
+    vars S S1 S2 : Inst .
+    var B : BExpr .
+    var X : Var .
+    var E : AExpr .
+    var N : Int .
+
+    --- Instructions
+    rl [AssignControl] : < (X := E) # CTRL | STK | MRY > => < E # cAssign # CTRL | X $ STK | MRY > .
+    rl [AssignEval] : < cAssign # CTRL | N $ X $ STK | MRY > => < CTRL | STK | update(MRY, X, N) > .
+
+    rl [SkipControl] : < skip # CTRL | STK | MRY > => < CTRL | STK | MRY > .
+
+    rl [SeqControl] : < (S1 ; S2) # CTRL | STK | MRY > => < S1 # S2 # CTRL | STK | MRY > .
+
+    rl [WhileControl] : < (while B do S od) # CTRL | STK | MRY > => < B # cWhile # CTRL | (while B do S od) $ STK | MRY > .
+    rl [WhileEvalTrue] : < cWhile # CTRL | true $ (while B do S od) $ STK | MRY > => < S # (while B do S od) # CTRL | STK | MRY > .
+    rl [WhileEvalFalse] : < cWhile # CTRL | false $ (while B do S od) $ STK | MRY > => < CTRL | STK | MRY > .
+
+    rl [IfControl] : < (if B then S1 else S2 fi) # CTRL | STK | MRY > => < B # cIf # CTRL | S1 $ S2 $ STK | MRY > .
+    rl [IfEvalTrue] : < cIf # CTRL | true $ S1 $ S2 $ STK | MRY > => < S1 # CTRL | STK | MRY > .
+    rl [IfEvalFalse] : < cIf # CTRL | false $ S1 $ S2 $ STK | MRY > => < S2 # CTRL | STK | MRY > .
+endm
