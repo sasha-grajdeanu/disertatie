@@ -7,6 +7,9 @@ mod VENUS-DESUGARING is
     vars Init Step : Inst .
     var Cond : BExpr .
     var Body : Inst .
+    var I : Inst .
+
+    eq I ; = I .
 
     eq for ( Init , Cond , Step ) do Body od = 
         Init ; 

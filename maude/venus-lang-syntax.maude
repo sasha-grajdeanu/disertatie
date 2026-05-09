@@ -40,6 +40,7 @@ mod VENUS-SYNTAX is
     op skip : -> Inst .
     op _:=_ : Var AExpr -> Inst [prec 60] .
     op _;_ : Inst Inst -> Inst [prec 70 gather (e E)] .
+    op _; : Inst -> Inst [prec 71] .
     
     op if _ then _ else _ fi : BExpr Inst Inst -> Inst [prec 65] .
     op while _ do _ od : BExpr Inst -> Inst [prec 65] .

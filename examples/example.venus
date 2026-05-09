@@ -1,0 +1,5 @@
+def 'seteazaStatus ( emptyList ) {
+    'statusGlobal := 1 
+} ;
+'statusGlobal := 0 ;
+call 'seteazaStatus ( emptyList ) ;
