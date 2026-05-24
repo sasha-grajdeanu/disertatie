@@ -1,0 +1,13 @@
+load maude/venus-lang-transition-machine.maude
+load maude/venus-lang-testing.maude
+
+mod TEST-RUNNER is
+    protecting VENUS-TS .
+    protecting VENUS-TESTING .
+
+    op testState : -> State .
+    eq testState = < cCall('test) # cNil | 1 $ 2 | ('checkAge =>['age, 'status := 0 ; if 'age gte 18 then 'status := 1 else call 'test(1, 2) fi]) , ('test =>['a, 'b, 'x := 'a ; 'y := 'b ; 'z := 1]) , ('age -> 0) , ('status -> 0) > .
+endm
+
+rewrite testState .
+quit

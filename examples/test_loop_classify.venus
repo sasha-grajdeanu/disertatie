@@ -1,0 +1,17 @@
+def 'classify ('n) {
+    'sum := 0 ;
+    'i := 1 ;
+    while ('i lte 'n) do
+        'sum := 'sum + 'i ;
+        'i := 'i + 1
+    od ;
+    if ('sum gt 10) then
+        'category := 2
+    else
+        if ('sum gt 0) then
+            'category := 1
+        else
+            'category := 0
+        fi
+    fi
+}

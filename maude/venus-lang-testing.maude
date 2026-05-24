@@ -1,0 +1,255 @@
+mod VENUS-TESTING is
+    protecting VENUS-TS .
+
+    var CTRL : Control .
+    var STK : Stack .
+    var MRY : Memory .
+    var F X Y : Var .
+    var I I1 I2 I3 S PostCode : Inst .
+    var E E1 E2 : AExpr .
+    var B B1 B2 : BExpr .
+    var L L1 L2 Bounds PostVars : List .
+    var N N' K : Int .
+    var M M1 M2 : Memory .
+
+    --- ============================================================
+    --- SECTION 1: Condition-aware constant extraction (BVA)
+    --- ============================================================
+
+    op extractCondConstants : Inst -> List .
+
+    eq extractCondConstants(skip) = emptyList .
+    eq extractCondConstants(X := E) = emptyList .
+    eq extractCondConstants(I1 ; I2) = extractCondConstants(I1) , extractCondConstants(I2) .
+    eq extractCondConstants(if B then I1 else I2 fi) = extractConstantsB(B) , extractCondConstants(I1) , extractCondConstants(I2) .
+    eq extractCondConstants(while B do I od) = extractConstantsB(B) , extractCondConstants(I) .
+    eq extractCondConstants(def X (L) { I }) = extractCondConstants(I) .
+    eq extractCondConstants(call X (L)) = emptyList .
+
+    op extractConstantsB : BExpr -> List .
+
+    eq extractConstantsB(true) = emptyList .
+    eq extractConstantsB(false) = emptyList .
+    eq extractConstantsB(not B) = extractConstantsB(B) .
+    eq extractConstantsB(B1 and B2) = extractConstantsB(B1) , extractConstantsB(B2) .
+    eq extractConstantsB(E1 lt E2) = extractConstantsA(E1) , extractConstantsA(E2) .
+    eq extractConstantsB(E1 gt E2) = extractConstantsA(E1) , extractConstantsA(E2) .
+    eq extractConstantsB(E1 eq E2) = extractConstantsA(E1) , extractConstantsA(E2) .
+    eq extractConstantsB(E1 lte E2) = extractConstantsA(E1) , extractConstantsA(E2) .
+    eq extractConstantsB(E1 gte E2) = extractConstantsA(E1) , extractConstantsA(E2) .
+    eq extractConstantsB(E1 neq E2) = extractConstantsA(E1) , extractConstantsA(E2) .
+
+    op extractConstantsA : AExpr -> List .
+
+    eq extractConstantsA(N) = N .
+    eq extractConstantsA(X) = emptyList .
+    eq extractConstantsA(E1 + E2) = extractConstantsA(E1) , extractConstantsA(E2) .
+    eq extractConstantsA(E1 - E2) = extractConstantsA(E1) , extractConstantsA(E2) .
+    eq extractConstantsA(E1 * E2) = extractConstantsA(E1) , extractConstantsA(E2) .
+    eq extractConstantsA(E1 / E2) = extractConstantsA(E1) , extractConstantsA(E2) .
+    eq extractConstantsA(E1 % E2) = extractConstantsA(E1) , extractConstantsA(E2) .
+
+    --- ============================================================
+    --- SECTION 2: Boundary value generation
+    --- ============================================================
+
+    op genBoundaries : List -> List .
+    eq genBoundaries(emptyList) = emptyList .
+    eq genBoundaries((N , L)) = (N - 1) , N , (N + 1) , genBoundaries(L) .
+
+    --- ============================================================
+    --- SECTION 3: Integer set with deduplication via AC matching
+    --- ============================================================
+
+    sort IntSet .
+    subsort Int < IntSet .
+    op emptySet : -> IntSet .
+    op _;;_ : IntSet IntSet -> IntSet [assoc comm id: emptySet] .
+
+    var SSet : IntSet .
+
+    eq N ;; N = N .
+
+    op toIntSet : List -> IntSet .
+    eq toIntSet(emptyList) = emptySet .
+    eq toIntSet((N , L)) = N ;; toIntSet(L) .
+
+    --- ============================================================
+    --- SECTION 4: Nondeterministic test value selection
+    --- ============================================================
+
+    op testValues : IntSet -> AExpr .
+
+    rl [pickValue] : testValues(N ;; SSet) => N .
+
+    op genTestArgs : List IntSet -> List .
+    eq genTestArgs(emptyList, SSet) = emptyList .
+    eq genTestArgs((E , L), SSet) = testValues(SSet) , genTestArgs(L, SSet) .
+
+    --- ============================================================
+    --- SECTION 5: Equational evaluator
+    --- Computes program effects via equations (not rewrite rules)
+    --- This enables instant loop computation for concrete inputs
+    --- ============================================================
+
+    --- Evaluate arithmetic expressions against a memory
+    op evalAExpr : AExpr Memory -> Int .
+
+    eq evalAExpr(N, M) = N .
+    eq evalAExpr(X, M) = get(M, X) .
+    eq evalAExpr(E1 + E2, M) = evalAExpr(E1, M) + evalAExpr(E2, M) .
+    eq evalAExpr(E1 - E2, M) = evalAExpr(E1, M) - evalAExpr(E2, M) .
+    eq evalAExpr(E1 * E2, M) = evalAExpr(E1, M) * evalAExpr(E2, M) .
+    eq evalAExpr(E1 / E2, M) = evalAExpr(E1, M) quo evalAExpr(E2, M) .
+    eq evalAExpr(E1 % E2, M) = evalAExpr(E1, M) rem evalAExpr(E2, M) .
+
+    --- Evaluate boolean expressions against a memory
+    op evalBExpr : BExpr Memory -> Bool .
+
+    eq evalBExpr(true, M) = true .
+    eq evalBExpr(false, M) = false .
+    eq evalBExpr(not B, M) = not evalBExpr(B, M) .
+    eq evalBExpr(B1 and B2, M) = evalBExpr(B1, M) and evalBExpr(B2, M) .
+    eq evalBExpr(E1 lt E2, M) = evalAExpr(E1, M) < evalAExpr(E2, M) .
+    eq evalBExpr(E1 gt E2, M) = evalAExpr(E1, M) > evalAExpr(E2, M) .
+    eq evalBExpr(E1 eq E2, M) = evalAExpr(E1, M) == evalAExpr(E2, M) .
+    eq evalBExpr(E1 lte E2, M) = evalAExpr(E1, M) <= evalAExpr(E2, M) .
+    eq evalBExpr(E1 gte E2, M) = evalAExpr(E1, M) >= evalAExpr(E2, M) .
+    eq evalBExpr(E1 neq E2, M) = evalAExpr(E1, M) =/= evalAExpr(E2, M) .
+
+    --- Evaluate instructions: returns updated memory
+    op evalInst : Inst Memory -> Memory .
+
+    eq evalInst(skip, M) = M .
+    eq evalInst(X := E, M) = update(M, X, evalAExpr(E, M)) .
+    eq evalInst((I1 ; I2), M) = evalInst(I2, evalInst(I1, M)) .
+    eq evalInst((I ;), M) = evalInst(I, M) .
+    eq evalInst(if B then I1 else I2 fi, M) =
+        if evalBExpr(B, M) then evalInst(I1, M) else evalInst(I2, M) fi .
+
+    --- While loop evaluation with bounded iteration (max 200 steps)
+    op evalWhile : BExpr Inst Memory Int -> Memory .
+    eq evalWhile(B, I, M, 0) = M .
+    ceq evalWhile(B, I, M, K) = evalWhile(B, I, evalInst(I, M), K - 1)
+        if K > 0 /\ evalBExpr(B, M) .
+    ceq evalWhile(B, I, M, K) = M
+        if not evalBExpr(B, M) .
+
+    eq evalInst(while B do I od, M) = evalWhile(B, I, M, 200) .
+
+    --- Function definitions and calls are skipped for equational eval
+    eq evalInst(def X (L) { I }, M) = M .
+    eq evalInst(call X (L), M) = M .
+
+    --- ============================================================
+    --- SECTION 6: Loop invariant boundary analysis
+    --- Finds input values where post-loop conditions change truth value
+    --- ============================================================
+
+    --- Extract the code BEFORE the first while loop (pre-loop init)
+    --- With right-assoc ;, "a ; b ; while C do D od ; E" parses as
+    --- "a ; (b ; ((while C do D od) ; E))"
+    op extractPreLoop : Inst -> Inst .
+    eq extractPreLoop(while B do I od) = skip .
+    eq extractPreLoop((while B do I1 od ; I2)) = skip .
+    eq extractPreLoop((I1 ; I2)) = I1 ; extractPreLoop(I2) [owise] .
+    eq extractPreLoop(I) = skip [owise] .
+
+    --- Extract the while loop itself
+    op extractLoop : Inst -> Inst .
+    eq extractLoop(while B do I od) = while B do I od .
+    eq extractLoop((while B do I1 od ; I2)) = while B do I1 od .
+    eq extractLoop((I1 ; I2)) = extractLoop(I2) [owise] .
+    eq extractLoop(I) = skip [owise] .
+
+    --- Extract code AFTER the while loop (post-loop code with conditions)
+    op extractPostLoop : Inst -> Inst .
+    eq extractPostLoop(while B do I od) = skip .
+    eq extractPostLoop((while B do I1 od ; I2)) = I2 .
+    eq extractPostLoop((I1 ; I2)) = extractPostLoop(I2) [owise] .
+    eq extractPostLoop(I) = skip [owise] .
+
+    --- Check if instruction contains a while loop
+    op hasLoop : Inst -> Bool .
+    eq hasLoop(while B do I od) = true .
+    eq hasLoop((I1 ; I2)) = hasLoop(I1) or hasLoop(I2) .
+    eq hasLoop(I) = false [owise] .
+
+    --- Compute a "signature" of the post-loop execution for a given input N
+    --- by running the pre-loop init, then the loop, then the post-loop code
+    --- The signature is the resulting memory after full execution
+    op evalFuncBody : Inst Var Int -> Memory .
+    eq evalFuncBody(S, X, N) = evalInst(S, update(empty, X, N)) .
+
+    --- Extract all post-loop condition constants (thresholds used in if-statements after loop)
+    op extractPostCondConstants : Inst -> List .
+    eq extractPostCondConstants(if B then I1 else I2 fi) =
+        extractConstantsB(B) , extractPostCondConstants(I1) , extractPostCondConstants(I2) .
+    eq extractPostCondConstants((I1 ; I2)) = extractPostCondConstants(I1) , extractPostCondConstants(I2) .
+    eq extractPostCondConstants(I) = emptyList [owise] .
+
+    --- Collect variable names assigned in an instruction (not in loops or sub-calls)
+    op assignedVars : Inst -> List .
+    eq assignedVars(X := E) = X .
+    eq assignedVars(if B then I1 else I2 fi) = assignedVars(I1) , assignedVars(I2) .
+    eq assignedVars((I1 ; I2)) = assignedVars(I1) , assignedVars(I2) .
+    eq assignedVars(I) = emptyList [owise] .
+
+    --- Extract the value of specific variables from memory as an IntSet
+    --- Used to create a comparable "fingerprint" of post-loop outputs
+    op getVarValues : List Memory -> IntSet .
+    eq getVarValues(emptyList, M) = emptySet .
+    eq getVarValues((X , L), M) = get(M, X) ;; getVarValues(L, M) .
+
+    --- Check if execution at value N produces different POST-LOOP OUTPUTS than at N-1
+    --- Only compares variables assigned by post-loop code (not loop iterators)
+    op isFlip : Inst Var Int -> Bool .
+    ceq isFlip(S, X, N) = true
+        if PostCode := extractPostLoop(S)
+        /\ PostVars := assignedVars(PostCode)
+        /\ M1 := evalInst(S, update(empty, X, N))
+        /\ M2 := evalInst(S, update(empty, X, N - 1))
+        /\ getVarValues(PostVars, M1) =/= getVarValues(PostVars, M2) .
+    eq isFlip(S, X, N) = false [owise] .
+
+    --- Scan input values from 0 to K, collecting values where execution path changes
+    op scanFlips : Inst Var Int Int -> IntSet .
+    eq scanFlips(S, X, N, 0) = emptySet .
+    ceq scanFlips(S, X, N, K) =
+        if isFlip(S, X, N) then
+            (N - 1) ;; N ;; scanFlips(S, X, N + 1, K - 1)
+        else
+            scanFlips(S, X, N + 1, K - 1)
+        fi
+        if K > 0 .
+
+    --- Compute invariant-derived boundary values for a single-param function
+    --- Scans n=1..200 looking for execution path changes
+    op invariantValues : Inst Var -> IntSet .
+    eq invariantValues(S, X) =
+        if hasLoop(S) then scanFlips(S, X, 1, 200) else emptySet fi .
+
+    --- ============================================================
+    --- SECTION 7: Auto-test entry point
+    --- Merges BVA values + invariant-derived boundary values
+    --- ============================================================
+
+    op cAutoTest : -> Control .
+
+    rl [DoAutoTest] : < cAutoTest # CTRL | STK | (F => [X, S]) , MRY > =>
+      < (call F ( genTestArgs(X,
+            0 ;; 1 ;;
+            toIntSet(genBoundaries(extractCondConstants(S))) ;;
+            invariantValues(S, X) ) ))
+        # CTRL | STK | (F => [X, S]) , tested(F) , MRY > .
+
+    --- Fallback for multi-param functions: use BVA only (invariant analysis
+    --- requires single-param scanning, multi-param is future work)
+    crl [DoAutoTestMulti] : < cAutoTest # CTRL | STK | (F => [L, S]) , MRY > =>
+      < (call F ( genTestArgs(L,
+            0 ;; 1 ;; toIntSet(genBoundaries(extractCondConstants(S))) ) ))
+        # CTRL | STK | (F => [L, S]) , tested(F) , MRY >
+      if L =/= emptyList .
+
+endm
+

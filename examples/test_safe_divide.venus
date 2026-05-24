@@ -1,0 +1,9 @@
+def 'safeDivide ('a , 'b) {
+    if ('b eq 0) then
+        'result := 0 ;
+        'error := 1
+    else
+        'result := 'a / 'b ;
+        'error := 0
+    fi
+}

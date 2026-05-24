@@ -1,20 +1,16 @@
-import sys
 import os
 import subprocess
 import re
 
-def parse_memory(mry_str):
+def parse_runner_memory(mry_str):
     if mry_str.strip() == "empty":
         return {}, {}
     
-    # Extract integer variables: 'name -> value
-    # value can be negative, so -?\d+, or 'undefined'
     var_pattern = re.compile(r"'([a-zA-Z0-9_]+)\s*->\s*(-?\d+|undefined)")
     variables = {}
     for match in var_pattern.finditer(mry_str):
         variables[match.group(1)] = match.group(2)
 
-    # Extract functions: 'name => [args, body]
     func_pattern = re.compile(r"'([a-zA-Z0-9_]+)\s*=>\s*\[(.*?)\]")
     functions = {}
     for match in func_pattern.finditer(mry_str):
@@ -46,19 +42,16 @@ quit
         f.write(maude_script)
 
     try:
-        # Run maude
         result = subprocess.run(["maude", "-no-advise", "-no-wrap", "-no-banner", temp_file], 
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, stdin=subprocess.DEVNULL)
         
         output = result.stdout
         
-        # Check for parsing or rewrite errors
         if "Warning:" in output or "ERROR" in output or "no parse" in output:
             print("--- Maude Error / Warning ---")
             print(output)
             return
 
-        # Find result state (no re.DOTALL so we stay on one line, greedy on the last part to capture the final >)
         match = re.search(r"result State:\s*<\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*)>", output)
         if not match:
             print("Failed to parse Maude output. Raw output:")
@@ -66,8 +59,7 @@ quit
             return
             
         ctrl, stk, mry = match.groups()
-        
-        variables, functions = parse_memory(mry)
+        variables, functions = parse_runner_memory(mry)
 
         print("\n" + "="*40)
         print(" VENUS PROGRAM EXECUTION SUCCESSFUL")
@@ -94,10 +86,3 @@ quit
     finally:
         if os.path.exists(temp_file):
             os.remove(temp_file)
-
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python venus_runner.py <file.venus>")
-        sys.exit(1)
-        
-    run_venus(sys.argv[1])

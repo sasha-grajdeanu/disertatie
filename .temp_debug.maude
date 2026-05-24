@@ -1,0 +1,22 @@
+load maude/venus-lang-transition-machine.maude
+load maude/venus-lang-testing.maude
+
+mod TEST-RUNNER is
+    protecting VENUS-TS .
+    protecting VENUS-TESTING .
+
+    op pgm : -> Inst .
+    eq pgm =
+def 'countPositive ('n) {
+    'count := 0 ;
+    'i := 0 ;
+    while ('i lt 'n) do
+        'count := 'count + 1 ;
+        'i := 'i + 1
+    od
+} .
+endm
+
+search [,500] < pgm # cAutoTest # cNil | sNil | empty > =>! < CTRL:Control | STK:Stack | MRY:Memory > .
+
+quit

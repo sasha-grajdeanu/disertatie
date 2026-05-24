@@ -27,10 +27,7 @@ mod VENUS-SYNTAX is
     op _gte_ : AExpr AExpr -> BExpr [prec 37] .
     op _neq_ : AExpr AExpr -> BExpr [prec 37] .
 
-    --- ==========================================
-    --- SINTAXA UNIFICATĂ PENTRU LISTE
-    --- Am rezolvat conflictul folosind o singură listă
-    --- ==========================================
+
     sort List .
     subsort AExpr < List .
     op emptyList : -> List .
@@ -42,11 +39,11 @@ mod VENUS-SYNTAX is
     op _;_ : Inst Inst -> Inst [prec 70 gather (e E)] .
     op _; : Inst -> Inst [prec 71] .
     
+    op if _ then _ fi : BExpr Inst -> Inst [prec 65] .
     op if _ then _ else _ fi : BExpr Inst Inst -> Inst [prec 65] .
     op while _ do _ od : BExpr Inst -> Inst [prec 65] .
     op for ( _ , _ , _ ) do _ od : Inst BExpr Inst Inst -> Inst [prec 65] .
 
-    --- Precedența ajustată (65) pentru a nu intra în conflict cu ';' (70)
     op def _ ( _ ) { _ } : Var List Inst -> Inst [prec 65] .
     op call _ ( _ ) : Var List -> Inst [prec 65] .
 endm

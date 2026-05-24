@@ -1,0 +1,15 @@
+def 'classify ('score) {
+    if ('score gte 90) then
+        'grade := 5
+    else
+        if ('score gte 70) then
+            'grade := 4
+        else
+            if ('score gte 50) then
+                'grade := 3
+            else
+                'grade := 2
+            fi
+        fi
+    fi
+}

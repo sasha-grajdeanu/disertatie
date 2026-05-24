@@ -1,9 +1,6 @@
 mod VENUS-DESUGARING is
     protecting VENUS-SYNTAX .
 
-    --- ==========================================
-    --- Ecuații (Desugaring)
-    --- ==========================================
     vars Init Step : Inst .
     var Cond : BExpr .
     var Body : Inst .
@@ -17,4 +14,6 @@ mod VENUS-DESUGARING is
             Body ; 
             Step 
         od .
+
+    eq if Cond then Body fi = if Cond then Body else skip fi .
 endm

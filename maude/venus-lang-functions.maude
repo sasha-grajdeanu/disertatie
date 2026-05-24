@@ -10,11 +10,7 @@ mod VENUS-FUNCTIONS is
     var E : AExpr .
     var N : Int .
 
-    --- ==========================================
-    --- Funcții (Definire și Apelare)
-    --- ==========================================
-    
-    --- PROTECȚIE PARSING: Am folosit paranteze rotunde () ca Maude să nu încurce comenzile cu #
+
     rl [DefFunc] : < (def X (L) { S1 }) # CTRL | STK | MRY > => 
                    < CTRL | STK | (X => [L, S1]) , MRY > .
 
@@ -24,14 +20,12 @@ mod VENUS-FUNCTIONS is
     rl [EvalEmptyList] : < emptyList # CTRL | STK | MRY > => 
                          < CTRL | STK | MRY > .
 
-    --- Evaluăm lista de la dreapta la stânga pentru ca argumentele să pice corect pe stivă
     crl [EvalList] : < (E , L) # CTRL | STK | MRY > => 
                      < L # E # CTRL | STK | MRY > if L =/= emptyList .
 
     rl [CallTrigger] : < cCall(X) # CTRL | STK | (X => [L, S1]) , MRY > => 
                        < cBind(L) # S1 # CTRL | STK | (X => [L, S1]) , MRY > .
 
-    --- Procesăm variabilele direct din List
     crl [BindArg] : < cBind((Y , L)) # CTRL | N $ STK | MRY > => 
                     < cBind(L) # CTRL | STK | update(MRY, Y, N) > if L =/= emptyList .
 
