@@ -1,0 +1,75 @@
+mod VENUS-SYMBOLIC-ASSIGNMENTS is
+    protecting VENUS-SYMBOLIC-STATE .
+
+    var PARAMETER : Var .
+    vars EXPR DIVISOR : AExpr .
+    vars CONTROL CONTROL_AFTER : Control .
+    var PATH_CONDITION : BExpr .
+    var SYMBOLIC_MEMORY : SymMemory .
+
+    crl [AssignSymDivisionByZero] :
+        sState [ (PARAMETER := EXPR) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sBug [ divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)
+             | SYMBOLIC_MEMORY ]
+        if hasDiv(EXPR)
+        /\ DIVISOR := getDivisor(EXPR)
+        /\ feasible(divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)) .
+
+    crl [AssignSymDivisionSafe] :
+        sState [ (PARAMETER := EXPR) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sState [ CONTROL
+               | divSafePC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)
+               | updateSym(SYMBOLIC_MEMORY, PARAMETER, evalSymA(EXPR, SYMBOLIC_MEMORY)) ]
+        if hasDiv(EXPR)
+        /\ DIVISOR := getDivisor(EXPR)
+        /\ feasible(divSafePC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)) .
+
+    crl [AssignSym] :
+        sState [ (PARAMETER := EXPR) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sState [ CONTROL
+               | PATH_CONDITION
+               | updateSym(SYMBOLIC_MEMORY, PARAMETER, evalSymA(EXPR, SYMBOLIC_MEMORY)) ]
+        if not hasDiv(EXPR) .
+
+    crl [ReturnSymDivisionByZero] :
+        sState [ (return EXPR) # CONTROL # cEndCall(CONTROL_AFTER)
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sBug [ divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)
+             | SYMBOLIC_MEMORY ]
+        if hasDiv(EXPR)
+        /\ DIVISOR := getDivisor(EXPR)
+        /\ feasible(divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)) .
+
+    crl [ReturnSymDivisionSafe] :
+        sState [ (return EXPR) # CONTROL # cEndCall(CONTROL_AFTER)
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sState [ CONTROL_AFTER
+               | divSafePC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)
+               | updateSym(SYMBOLIC_MEMORY, 'result, evalSymA(EXPR, SYMBOLIC_MEMORY)) ]
+        if hasDiv(EXPR)
+        /\ DIVISOR := getDivisor(EXPR)
+        /\ feasible(divSafePC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)) .
+
+    crl [ReturnSym] :
+        sState [ (return EXPR) # CONTROL # cEndCall(CONTROL_AFTER)
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sState [ CONTROL_AFTER
+               | PATH_CONDITION
+               | updateSym(SYMBOLIC_MEMORY, 'result, evalSymA(EXPR, SYMBOLIC_MEMORY)) ]
+        if not hasDiv(EXPR) .
+endm

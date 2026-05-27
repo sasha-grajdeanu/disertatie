@@ -1,0 +1,86 @@
+mod VENUS-SYMBOLIC-EVAL is
+    protecting VENUS-ALGEBRA .
+
+    sorts SymMemory SymMap .
+    subsort Memory SymMap < SymMemory .
+
+    op _,_ : SymMemory SymMemory -> SymMemory [assoc comm id: empty] .
+
+    op _->s_ : Var AExpr -> SymMap .
+
+    vars X : Var .
+    vars E E1 E2 AE : AExpr .
+    vars B B1 B2 : BExpr .
+    vars N : Int .
+    vars M : SymMemory .
+
+    op getSym : SymMemory Var -> AExpr .
+    eq getSym(((X ->s E) , M), X) = E .
+    eq getSym(M, X) = X [owise] .
+
+    op updateSym : SymMemory Var AExpr -> SymMemory .
+    eq updateSym(((X ->s E1) , M), X, E2) = (X ->s E2) , M .
+    eq updateSym(M, X, E) = (X ->s E) , M [owise] .
+
+    op evalSymA : AExpr SymMemory -> AExpr .
+    eq evalSymA(N, M) = N .
+    eq evalSymA(X, M) = getSym(M, X) .
+    eq evalSymA(E1 + E2, M) = evalSymA(E1, M) + evalSymA(E2, M) .
+    eq evalSymA(_-_(E1, E2), M) = _-_(evalSymA(E1, M), evalSymA(E2, M)) .
+    eq evalSymA(E1 * E2, M) = evalSymA(E1, M) * evalSymA(E2, M) .
+    eq evalSymA(E1 / E2, M) = evalSymA(E1, M) / evalSymA(E2, M) .
+    eq evalSymA(E1 % E2, M) = evalSymA(E1, M) % evalSymA(E2, M) .
+
+    op evalSymB : BExpr SymMemory -> BExpr .
+    eq evalSymB(true, M) = true .
+    eq evalSymB(false, M) = false .
+    eq evalSymB(not(B), M) = not(evalSymB(B, M)) .
+    eq evalSymB((B1 and B2), M) = (evalSymB(B1, M) and evalSymB(B2, M)) .
+    eq evalSymB((B1 or B2), M) = (evalSymB(B1, M) or evalSymB(B2, M)) .
+    eq evalSymB((E1 lt E2), M) = (evalSymA(E1, M) lt evalSymA(E2, M)) .
+    eq evalSymB((E1 gt E2), M) = (evalSymA(E1, M) gt evalSymA(E2, M)) .
+    eq evalSymB((E1 eq E2), M) = (evalSymA(E1, M) eq evalSymA(E2, M)) .
+    eq evalSymB((E1 lte E2), M) = (evalSymA(E1, M) lte evalSymA(E2, M)) .
+    eq evalSymB((E1 gte E2), M) = (evalSymA(E1, M) gte evalSymA(E2, M)) .
+    eq evalSymB((E1 neq E2), M) = (evalSymA(E1, M) neq evalSymA(E2, M)) .
+
+    op hasDiv : AExpr -> Bool .
+    eq hasDiv(N) = false .
+    eq hasDiv(X) = false .
+    eq hasDiv(E1 + E2) = hasDiv(E1) or hasDiv(E2) .
+    eq hasDiv(_-_(E1, E2)) = hasDiv(E1) or hasDiv(E2) .
+    eq hasDiv(E1 * E2) = hasDiv(E1) or hasDiv(E2) .
+    eq hasDiv(E1 / E2) = true .
+    eq hasDiv(E1 % E2) = true .
+
+    op getDivisor : AExpr -> AExpr .
+    eq getDivisor(E1 / E2) = E2 .
+    eq getDivisor(E1 % E2) = E2 .
+    eq getDivisor(E1 + E2) = if hasDiv(E1) then getDivisor(E1) else getDivisor(E2) fi .
+    eq getDivisor(_-_(E1, E2)) = if hasDiv(E1) then getDivisor(E1) else getDivisor(E2) fi .
+    eq getDivisor(E1 * E2) = if hasDiv(E1) then getDivisor(E1) else getDivisor(E2) fi .
+
+    op hasDivB : BExpr -> Bool .
+    eq hasDivB(true) = false .
+    eq hasDivB(false) = false .
+    eq hasDivB(not(B)) = hasDivB(B) .
+    eq hasDivB((B1 and B2)) = hasDivB(B1) or hasDivB(B2) .
+    eq hasDivB((B1 or B2)) = hasDivB(B1) or hasDivB(B2) .
+    eq hasDivB((E1 lt E2)) = hasDiv(E1) or hasDiv(E2) .
+    eq hasDivB((E1 gt E2)) = hasDiv(E1) or hasDiv(E2) .
+    eq hasDivB((E1 eq E2)) = hasDiv(E1) or hasDiv(E2) .
+    eq hasDivB((E1 lte E2)) = hasDiv(E1) or hasDiv(E2) .
+    eq hasDivB((E1 gte E2)) = hasDiv(E1) or hasDiv(E2) .
+    eq hasDivB((E1 neq E2)) = hasDiv(E1) or hasDiv(E2) .
+
+    op getDivisorB : BExpr -> AExpr .
+    eq getDivisorB(not(B)) = getDivisorB(B) .
+    eq getDivisorB((B1 and B2)) = if hasDivB(B1) then getDivisorB(B1) else getDivisorB(B2) fi .
+    eq getDivisorB((B1 or B2)) = if hasDivB(B1) then getDivisorB(B1) else getDivisorB(B2) fi .
+    eq getDivisorB((E1 lt E2)) = if hasDiv(E1) then getDivisor(E1) else getDivisor(E2) fi .
+    eq getDivisorB((E1 gt E2)) = if hasDiv(E1) then getDivisor(E1) else getDivisor(E2) fi .
+    eq getDivisorB((E1 eq E2)) = if hasDiv(E1) then getDivisor(E1) else getDivisor(E2) fi .
+    eq getDivisorB((E1 lte E2)) = if hasDiv(E1) then getDivisor(E1) else getDivisor(E2) fi .
+    eq getDivisorB((E1 gte E2)) = if hasDiv(E1) then getDivisor(E1) else getDivisor(E2) fi .
+    eq getDivisorB((E1 neq E2)) = if hasDiv(E1) then getDivisor(E1) else getDivisor(E2) fi .
+endm

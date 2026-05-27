@@ -1,0 +1,55 @@
+mod VENUS-SYNTAX is
+    protecting INT .
+    protecting QID .
+
+    sort Var .
+    subsort Qid < Var .
+    sort AExpr .
+    subsort Var < AExpr .
+    subsort Int < AExpr .
+
+    op _+_ : AExpr AExpr -> AExpr [ditto] .
+    op _-_ : AExpr AExpr -> AExpr [ditto] .
+    op _*_ : AExpr AExpr -> AExpr [ditto] .
+    op _/_ : AExpr AExpr -> AExpr [prec 31 gather (E e)] .
+    op _%_ : AExpr AExpr -> AExpr [prec 31 gather (E e)] .
+
+    sort BExpr .
+    ops true false : -> BExpr .
+    op not ( _ ) : BExpr -> BExpr .
+    op _and_ : BExpr BExpr -> BExpr [prec 55 gather (E e)] .
+    op _or_ : BExpr BExpr -> BExpr [prec 57 gather (E e)] .
+    op _lt_ : AExpr AExpr -> BExpr [prec 60 gather (E E)] .
+    op _gt_ : AExpr AExpr -> BExpr [prec 60 gather (E E)] .
+    op _eq_ : AExpr AExpr -> BExpr [prec 60 gather (E E)] .
+    op _lte_ : AExpr AExpr -> BExpr [prec 60 gather (E E)] .
+    op _gte_ : AExpr AExpr -> BExpr [prec 60 gather (E E)] .
+    op _neq_ : AExpr AExpr -> BExpr [prec 60 gather (E E)] .
+
+    sort List .
+    subsort AExpr < List .
+    op emptyList : -> List .
+    op _,_ : List List -> List [assoc prec 58] .
+    
+    sorts Inst FInst .
+    subsort Inst < FInst .
+    op skip : -> Inst .
+    op _:=_ : Var AExpr -> Inst [prec 60] .
+    op return _ : AExpr -> FInst [prec 60] .
+    op __ : Inst Inst -> Inst [assoc prec 80 gather (e E)] .
+    op __ : FInst FInst -> FInst [assoc prec 80 gather (e E)] .
+    op if _ then _ fi : BExpr Inst -> Inst [prec 65] .
+    op if _ then _ fi : BExpr FInst -> FInst [prec 65] .
+    op if _ then _ else _ fi : BExpr Inst Inst -> Inst [prec 65] .
+    op if _ then _ else _ fi : BExpr FInst FInst -> FInst [prec 65] .
+    op while _ do _ od : BExpr Inst -> Inst [prec 65] .
+    op while _ do _ od : BExpr FInst -> FInst [prec 65] .
+    op for _ in range ( _ , _ ) do _ od : Var AExpr AExpr Inst -> Inst [prec 65] .
+    op for _ in range ( _ , _ ) do _ od : Var AExpr AExpr FInst -> FInst [prec 65] .
+    op def _ ( ) { _ } : Var FInst -> Inst [prec 65] .
+    op def _ ( _ ) { _ } : Var List FInst -> Inst [prec 65] .
+    op call _ ( ) : Var -> Inst [prec 65] .
+    op call _ ( _ ) : Var List -> Inst [prec 65] .
+    op _:= call _ ( ) : Var Var -> Inst [prec 60] .
+    op _:= call _ ( _ ) : Var Var List -> Inst [prec 60] .
+endm

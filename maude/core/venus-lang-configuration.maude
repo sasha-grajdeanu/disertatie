@@ -1,50 +1,54 @@
 load venus-lang-syntax.maude
-
 mod VENUS-CONFIG is
     protecting VENUS-SYNTAX .
 
     sort Control .
-    subsort Inst < Control .
+    subsort FInst < Control .
     subsort AExpr < Control .
     subsort BExpr < Control .
     subsort List < Control .
-    ops cAdd cSub cMul cDiv cMod cNot cAnd cLt cAssign cSkip cIf cWhile cGt cEq cLte cGte cNeq : -> Control .
-    op cCall : Var -> Control . 
-    op cBind : List -> Control . 
+
+    ops cAdd cSub cMul cDiv cMod : -> Control .
+    ops cNot cAnd cOr : -> Control .
+    ops cLt cGt cEq cLte cGte cNeq : -> Control .
+    ops cAssign cReturn cSkip cIf cWhile : -> Control .
+    op cEndCall : Control -> Control .
+    op cAssignReturn : Var -> Control .
+    op cCall : Var -> Control .
+    op cBind : List -> Control .
     op cNil : -> Control .
     op _#_ : Control Control -> Control [assoc id: cNil] .
 
     sort Stack .
-    subsort Inst < Stack .
+    subsort FInst < Stack .
     subsort Var < Stack .
     subsort Int < Stack .
     subsort BExpr < Stack .
     subsort List < Stack .
+
     op sNil : -> Stack .
     op _$_ : Stack Stack -> Stack [assoc id: sNil] .
 
     sort Memory .
     op _->_ : Var Int -> Memory .
-    op _=>[_,_] : Var List Inst -> Memory .
+    op _=>[_,_] : Var List FInst -> Memory .
     op tested : Var -> Memory .
     op empty : -> Memory .
     op _,_ : Memory Memory -> Memory [assoc comm id: empty] .
 
-    var M : Memory .
+    var MEMORY : Memory .
     vars X Y Z : Var .
-    vars N N' : Int .
-    vars L L1 L2 : List .
-    vars E E1 E2 : AExpr .
-    vars S S1 S2 : Inst .
+    vars INT INT' : Int .
+    vars INST : FInst .
 
     op update : Memory Var Int -> Memory .
-    eq update(((X -> N') , M), X, N) = (X -> N) , M .
-    eq update(M, X, N) = (X -> N) , M [owise] .
+    eq update(((X -> INT') , MEMORY), X, INT) = (X -> INT) , MEMORY .
+    eq update(MEMORY, X, INT) = (X -> INT) , MEMORY [owise] .
 
     op undefined : -> Int .
     op get : Memory Var -> Int .
-    eq get(((X -> N) , M), X) = N .
-    eq get(M, X) = undefined [owise] .
+    eq get(((X -> INT) , MEMORY), X) = INT .
+    eq get(MEMORY, X) = undefined [owise] .
 
     sort State .
     op <_|_|_> : Control Stack Memory -> State .

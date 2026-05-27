@@ -1,9 +1,9 @@
-load venus-lang-configuration.maude
-load venus-lang-arithmetic.maude
-load venus-lang-boolean.maude
-load venus-lang-instructions.maude
-load venus-lang-functions.maude
-load venus-lang-desugaring.maude
+load core/venus-lang-configuration.maude
+load core/venus-lang-arithmetic.maude
+load core/venus-lang-boolean.maude
+load core/venus-lang-instructions.maude
+load core/venus-lang-functions.maude
+load core/venus-lang-desugaring.maude
 
 mod VENUS-TS is
     protecting VENUS-ARITHMETIC .

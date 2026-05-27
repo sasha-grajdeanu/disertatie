@@ -1,0 +1,45 @@
+load venus-lang-algebra.maude
+load venus-lang-symbolic-eval.maude
+
+mod VENUS-SYMBOLIC-STATE is
+    protecting VENUS-SYMBOLIC-EVAL .
+
+    vars PATH_CONDITION BRANCH_CONDITION CONDITION : BExpr .
+    var DIVISOR : AExpr .
+    var SYMBOLIC_MEMORY : SymMemory .
+
+    sort SymState .
+    op sState [ _ | _ | _ ] : Control BExpr SymMemory -> SymState [ctor] .
+
+    op sBug [ _ | _ ] : BExpr SymMemory -> SymState [ctor] .
+
+    op feasible : BExpr -> Bool .
+    eq feasible((false).BExpr) = (false).Bool .
+    eq feasible(BRANCH_CONDITION) = (true).Bool [owise] .
+
+    op divZeroPC : BExpr AExpr SymMemory -> BExpr .
+    eq divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY) =
+        PATH_CONDITION and (evalSymA(DIVISOR, SYMBOLIC_MEMORY) eq 0) .
+
+    op divSafePC : BExpr AExpr SymMemory -> BExpr .
+    eq divSafePC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY) =
+        PATH_CONDITION and (evalSymA(DIVISOR, SYMBOLIC_MEMORY) neq 0) .
+
+    op thenPC : BExpr BExpr SymMemory -> BExpr .
+    eq thenPC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY) =
+        PATH_CONDITION and evalSymB(CONDITION, SYMBOLIC_MEMORY) .
+
+    op elsePC : BExpr BExpr SymMemory -> BExpr .
+    eq elsePC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY) =
+        PATH_CONDITION and not(evalSymB(CONDITION, SYMBOLIC_MEMORY)) .
+
+    op thenSafePC : BExpr AExpr BExpr SymMemory -> BExpr .
+    eq thenSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY) =
+        divSafePC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)
+        and evalSymB(CONDITION, SYMBOLIC_MEMORY) .
+
+    op elseSafePC : BExpr AExpr BExpr SymMemory -> BExpr .
+    eq elseSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY) =
+        divSafePC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)
+        and not(evalSymB(CONDITION, SYMBOLIC_MEMORY)) .
+endm

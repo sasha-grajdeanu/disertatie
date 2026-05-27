@@ -1,0 +1,23 @@
+mod VENUS-SYMBOLIC-STRUCTURAL is
+    protecting VENUS-SYMBOLIC-STATE .
+
+    vars INST1 INST2 INST : FInst .
+    var CONTROL : Control .
+    var PATH_CONDITION : BExpr .
+    var SYMBOLIC_MEMORY : SymMemory .
+
+    rl [SeqSym] :
+        sState [ (INST1 INST2) # CONTROL | PATH_CONDITION | SYMBOLIC_MEMORY ]
+        =>
+        sState [ INST1 # INST2 # CONTROL | PATH_CONDITION | SYMBOLIC_MEMORY ] .
+
+    rl [EndCallSym] :
+        sState [ cEndCall(CONTROL) | PATH_CONDITION | SYMBOLIC_MEMORY ]
+        =>
+        sState [ CONTROL | PATH_CONDITION | SYMBOLIC_MEMORY ] .
+
+    rl [SkipSym] :
+        sState [ skip # CONTROL | PATH_CONDITION | SYMBOLIC_MEMORY ]
+        =>
+        sState [ CONTROL | PATH_CONDITION | SYMBOLIC_MEMORY ] .
+endm

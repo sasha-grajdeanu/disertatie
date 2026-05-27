@@ -1,0 +1,49 @@
+mod VENUS-BOOLEAN is
+    protecting VENUS-CONFIG .
+
+    var CONTROL : Control .
+    var STACK : Stack .
+    var MEMORY : Memory .
+    vars BOOL_VAL BOOL_VAL1 BOOL_VAL2 : BExpr .
+    vars INT_VAL1 INT_VAL2 : Int .
+    vars AE AE1 AE2 : AExpr .
+
+    rl [TrueControl] : < true # CONTROL | STACK | MEMORY > => < CONTROL | true $ STACK | MEMORY > .
+    rl [FalseControl] : < false # CONTROL | STACK | MEMORY > => < CONTROL | false $ STACK | MEMORY > .
+
+    rl [NotControl] : < not(BOOL_VAL) # CONTROL | STACK | MEMORY > => < BOOL_VAL # cNot # CONTROL | STACK | MEMORY > .
+    rl [NotEvalTrue] : < cNot # CONTROL | true $ STACK | MEMORY > => < CONTROL | false $ STACK | MEMORY > .
+    rl [NotEvalFalse] : < cNot # CONTROL | false $ STACK | MEMORY > => < CONTROL | true $ STACK | MEMORY > .
+
+    rl [AndControl] : < (BOOL_VAL1 and BOOL_VAL2) # CONTROL | STACK | MEMORY > => < BOOL_VAL1 # BOOL_VAL2 # cAnd # CONTROL | STACK | MEMORY > .
+    rl [AndEvalTrue] : < cAnd # CONTROL | BOOL_VAL $ true $ STACK | MEMORY > => < CONTROL | BOOL_VAL $ STACK | MEMORY > .
+    rl [AndEvalFalse] : < cAnd # CONTROL | BOOL_VAL $ false $ STACK | MEMORY > => < CONTROL | false $ STACK | MEMORY > .
+
+    rl [OrControl] : < (BOOL_VAL1 or BOOL_VAL2) # CONTROL | STACK | MEMORY > => < BOOL_VAL1 # BOOL_VAL2 # cOr # CONTROL | STACK | MEMORY > .
+    rl [OrEvalTrue] : < cOr # CONTROL | true $ BOOL_VAL $ STACK | MEMORY > => < CONTROL | true $ STACK | MEMORY > .
+    rl [OrEvalFalse] : < cOr # CONTROL | false $ BOOL_VAL $ STACK | MEMORY > => < CONTROL | BOOL_VAL $ STACK | MEMORY > .
+
+    rl [LtControl] : < (AE1 lt AE2) # CONTROL | STACK | MEMORY > => < AE1 # AE2 # cLt # CONTROL | STACK | MEMORY > .
+    crl [LtEvalTrue] : < cLt # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | true $ STACK | MEMORY > if (INT_VAL1 < INT_VAL2) .
+    crl [LtEvalFalse] : < cLt # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | false $ STACK | MEMORY > if (INT_VAL1 >= INT_VAL2) .
+
+    rl [GtControl] : < (AE1 gt AE2) # CONTROL | STACK | MEMORY > => < AE1 # AE2 # cGt # CONTROL | STACK | MEMORY > .
+    crl [GtEvalTrue] : < cGt # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | true $ STACK | MEMORY > if (INT_VAL1 > INT_VAL2) .
+    crl [GtEvalFalse] : < cGt # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | false $ STACK | MEMORY > if (INT_VAL1 <= INT_VAL2) .
+
+    rl [EqControl] : < (AE1 eq AE2) # CONTROL | STACK | MEMORY > => < AE1 # AE2 # cEq # CONTROL | STACK | MEMORY > .
+    crl [EqEvalTrue] : < cEq # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | true $ STACK | MEMORY > if (INT_VAL1 == INT_VAL2) .
+    crl [EqEvalFalse] : < cEq # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | false $ STACK | MEMORY > if (INT_VAL1 =/= INT_VAL2) .
+
+    rl [LteControl] : < (AE1 lte AE2) # CONTROL | STACK | MEMORY > => < AE1 # AE2 # cLte # CONTROL | STACK | MEMORY > .
+    crl [LteEvalTrue] : < cLte # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | true $ STACK | MEMORY > if (INT_VAL1 <= INT_VAL2) .
+    crl [LteEvalFalse] : < cLte # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | false $ STACK | MEMORY > if (INT_VAL1 > INT_VAL2) .
+
+    rl [GteControl] : < (AE1 gte AE2) # CONTROL | STACK | MEMORY > => < AE1 # AE2 # cGte # CONTROL | STACK | MEMORY > .
+    crl [GteEvalTrue] : < cGte # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | true $ STACK | MEMORY > if (INT_VAL1 >= INT_VAL2) .
+    crl [GteEvalFalse] : < cGte # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | false $ STACK | MEMORY > if (INT_VAL1 < INT_VAL2) .
+
+    rl [NeqControl] : < (AE1 neq AE2) # CONTROL | STACK | MEMORY > => < AE1 # AE2 # cNeq # CONTROL | STACK | MEMORY > .
+    crl [NeqEvalTrue] : < cNeq # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | true $ STACK | MEMORY > if (INT_VAL1 =/= INT_VAL2) .
+    crl [NeqEvalFalse] : < cNeq # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | false $ STACK | MEMORY > if (INT_VAL1 == INT_VAL2) .
+endm

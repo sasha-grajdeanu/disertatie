@@ -1,0 +1,137 @@
+load ../venus-lang-transition-machine.maude
+
+mod VENUS-ALGEBRA is
+    protecting VENUS-TS .
+
+    vars E E1 E2 AE AE1 AE2 : AExpr .
+    vars X : Var .
+    vars B B1 B2 B3 B4 BE BE1 BE2 : BExpr .
+    vars N K N1 N2 N3 : Int .
+
+    sorts Cmp MaybeCmp .
+    subsort Cmp < MaybeCmp .
+    op noCmp : -> MaybeCmp .
+    ops ltC lteC gtC gteC eqC neqC : Var Int -> Cmp .
+    vars C C1 C2 : MaybeCmp .
+
+    ceq (N1 lt N2) = true if N1 < N2 .
+    ceq (N1 lt N2) = false if N1 >= N2 .
+    ceq (N1 gt N2) = true if N1 > N2 .
+    ceq (N1 gt N2) = false if N1 <= N2 .
+    ceq (N1 eq N2) = true if N1 == N2 .
+    ceq (N1 eq N2) = false if N1 =/= N2 .
+    ceq (N1 lte N2) = true if N1 <= N2 .
+    ceq (N1 lte N2) = false if N1 > N2 .
+    ceq (N1 gte N2) = true if N1 >= N2 .
+    ceq (N1 gte N2) = false if N1 < N2 .
+    ceq (N1 neq N2) = true if N1 =/= N2 .
+    ceq (N1 neq N2) = false if N1 == N2 .
+
+    eq (X lt X) = false .
+    eq (X gt X) = false .
+    eq (X lte X) = true .
+    eq (X gte X) = true .
+    eq (X eq X) = true .
+    eq (X neq X) = false .
+
+    ceq ((X + N) lt X) = false if N >= 0 .
+    ceq ((N + X) lt X) = false if N >= 0 .
+    ceq ((X + N) lte X) = false if N > 0 .
+    ceq ((N + X) lte X) = false if N > 0 .
+    ceq ((X + N) gt X) = true if N > 0 .
+    ceq ((N + X) gt X) = true if N > 0 .
+    ceq ((X + N) gte X) = true if N >= 0 .
+    ceq ((N + X) gte X) = true if N >= 0 .
+    ceq ((X + N) eq X) = false if N =/= 0 .
+    ceq ((N + X) eq X) = false if N =/= 0 .
+    ceq ((X + N) neq X) = true if N =/= 0 .
+    ceq ((N + X) neq X) = true if N =/= 0 .
+
+    eq (true and BE) = BE .
+    eq (BE and true) = BE .
+    eq (false and BE) = false .
+    eq (BE and false) = false .
+    eq (true or BE) = true .
+    eq (BE or true) = true .
+    eq (false or BE) = BE .
+    eq (BE or false) = BE .
+    eq not((true).BExpr) = (false).BExpr .
+    eq not((false).BExpr) = (true).BExpr .
+    eq not(not(BE)) = BE .
+    eq not((BE1 and BE2)) = not(BE1) or not(BE2) .
+    eq not((BE1 or BE2)) = not(BE1) and not(BE2) .
+
+    eq not((E1 lt E2)) = (E1 gte E2) .
+    eq not((E1 gt E2)) = (E1 lte E2) .
+    eq not((E1 eq E2)) = (E1 neq E2) .
+    eq not((E1 lte E2)) = (E1 gt E2) .
+    eq not((E1 gte E2)) = (E1 lt E2) .
+    eq not((E1 neq E2)) = (E1 eq E2) .
+
+
+    eq (BE and BE) = BE .
+    eq (BE and not(BE)) = false .
+    eq (not(BE) and BE) = false .
+    eq (BE or BE) = BE .
+    eq (BE or not(BE)) = true .
+    eq (not(BE) or BE) = true .
+
+    op canonCmp : BExpr -> MaybeCmp .
+    eq canonCmp(X lt N) = ltC(X, N) .
+    eq canonCmp(X lte N) = lteC(X, N) .
+    eq canonCmp(X gt N) = gtC(X, N) .
+    eq canonCmp(X gte N) = gteC(X, N) .
+    eq canonCmp(X eq N) = eqC(X, N) .
+    eq canonCmp(X neq N) = neqC(X, N) .
+    eq canonCmp(N lt X) = gtC(X, N) .
+    eq canonCmp(N lte X) = gteC(X, N) .
+    eq canonCmp(N gt X) = ltC(X, N) .
+    eq canonCmp(N gte X) = lteC(X, N) .
+    eq canonCmp(N eq X) = eqC(X, N) .
+    eq canonCmp(N neq X) = neqC(X, N) .
+    eq canonCmp(BE) = noCmp [owise] .
+
+    op cmpConflict : MaybeCmp MaybeCmp -> Bool [comm] .
+    eq cmpConflict(noCmp, C) = false .
+    ceq cmpConflict(eqC(X, N1), eqC(X, N2)) = true if N1 =/= N2 .
+    eq cmpConflict(eqC(X, N), neqC(X, N)) = true .
+    ceq cmpConflict(eqC(X, N1), ltC(X, N2)) = true if N1 >= N2 .
+    ceq cmpConflict(eqC(X, N1), lteC(X, N2)) = true if N1 > N2 .
+    ceq cmpConflict(eqC(X, N1), gtC(X, N2)) = true if N1 <= N2 .
+    ceq cmpConflict(eqC(X, N1), gteC(X, N2)) = true if N1 < N2 .
+    ceq cmpConflict(ltC(X, N1), gteC(X, N2)) = true if N2 >= N1 .
+    ceq cmpConflict(ltC(X, N1), gtC(X, N2)) = true if N2 >= _-_(N1, 1) .
+    ceq cmpConflict(lteC(X, N1), gtC(X, N2)) = true if N2 >= N1 .
+    ceq cmpConflict(lteC(X, N1), gteC(X, N2)) = true if N2 > N1 .
+    eq cmpConflict(C1, C2) = false [owise] .
+
+    op conflict : BExpr BExpr -> Bool .
+    eq conflict((B1 and B2), (B3 or B4)) =
+        (conflict(B1, B3) or conflict(B2, B3))
+        and (conflict(B1, B4) or conflict(B2, B4)) .
+    eq conflict((B3 or B4), (B1 and B2)) =
+        (conflict(B1, B3) or conflict(B2, B3))
+        and (conflict(B1, B4) or conflict(B2, B4)) .
+    eq conflict((B1 and B2), B3) = conflict(B1, B3) or conflict(B2, B3) .
+    eq conflict(B3, (B1 and B2)) = conflict(B1, B3) or conflict(B2, B3) .
+    eq conflict((B1 or B2), B3) = conflict(B1, B3) and conflict(B2, B3) .
+    eq conflict(B3, (B1 or B2)) = conflict(B1, B3) and conflict(B2, B3) .
+    eq conflict(B1, B2) = cmpConflict(canonCmp(B1), canonCmp(B2)) [owise] .
+    ceq (BE1 and BE2) = false if conflict(BE1, BE2) .
+
+    eq AE + 0 = AE .
+    eq 0 + AE = AE .
+    eq _-_(AE, 0) = AE .
+    eq AE * 1 = AE .
+    eq 1 * AE = AE .
+
+    eq AE + AE = AE * 2 .
+    eq (AE * N) + AE = AE * (N + 1) .
+
+    eq _-_((AE * N), AE) = AE * _-_(N, 1) .
+    
+    eq _-_(_-_(AE1, AE2), AE2) = _-_(AE1, (AE2 * 2)) .
+    eq _-_(_-_(AE1, (AE2 * N)), AE2) = _-_(AE1, (AE2 * (N + 1))) .
+    eq _-_(_-_(AE, N1), N2) = _-_(AE, (N1 + N2)) .
+
+endm

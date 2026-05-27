@@ -1,0 +1,91 @@
+mod VENUS-SYMBOLIC-FUNCTIONS is
+    protecting VENUS-SYMBOLIC-STATE .
+
+    vars FUNCTION PARAMETER : Var .
+    vars FORMALS ARGS REST_FORMALS REST_ARGS : List .
+    var ARG : AExpr .
+    var BODY : FInst .
+    var CONTROL : Control .
+    var PATH_CONDITION : BExpr .
+    var SYMBOLIC_MEMORY : SymMemory .
+
+    rl [DefineFunctionSym] :
+        sState [ (def FUNCTION (FORMALS) { BODY }) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sState [ CONTROL
+               | PATH_CONDITION
+               | (FUNCTION =>[FORMALS, BODY]) , SYMBOLIC_MEMORY ] .
+
+    rl [CallSym] :
+        sState [ (call FUNCTION ( ARGS )) # CONTROL
+               | PATH_CONDITION
+               | (FUNCTION =>[FORMALS, BODY]) , SYMBOLIC_MEMORY ]
+        =>
+        sState [ BODY # cEndCall(CONTROL)
+               | PATH_CONDITION
+               | bindSymArgs(FORMALS, ARGS, (FUNCTION =>[FORMALS, BODY]) , SYMBOLIC_MEMORY) ] .
+
+    rl [AssignCallSym] :
+        sState [ (PARAMETER := call FUNCTION ( FORMALS )) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sState [ (call FUNCTION ( FORMALS )) # cAssignReturn(PARAMETER) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ] .
+
+    rl [AssignCallResultSym] :
+        sState [ cAssignReturn(PARAMETER) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sState [ CONTROL
+               | PATH_CONDITION
+               | updateSym(SYMBOLIC_MEMORY, PARAMETER, getSym(SYMBOLIC_MEMORY, 'result)) ] .
+
+    op cSymTest : -> Control .
+
+    rl [StartSingleParamSymbolicTest] :
+        sState [ cSymTest # CONTROL
+               | PATH_CONDITION
+               | (FUNCTION =>[PARAMETER, BODY]) , SYMBOLIC_MEMORY ]
+        =>
+        sState [ (call FUNCTION ( PARAMETER )) # CONTROL
+               | true
+               | (FUNCTION =>[PARAMETER, BODY]) ,
+                 tested(FUNCTION) ,
+                 (PARAMETER ->s PARAMETER) ,
+                 SYMBOLIC_MEMORY ] .
+
+    crl [StartMultiParamSymbolicTest] :
+        sState [ cSymTest # CONTROL
+               | PATH_CONDITION
+               | (FUNCTION =>[FORMALS, BODY]) , SYMBOLIC_MEMORY ]
+        =>
+        sState [ (call FUNCTION ( FORMALS )) # CONTROL
+               | true
+               | (FUNCTION =>[FORMALS, BODY]) ,
+                 tested(FUNCTION) ,
+                 initSymMemory(FORMALS) ,
+                 SYMBOLIC_MEMORY ]
+        if FORMALS =/= emptyList .
+
+    op initSymMemory : List -> SymMemory .
+    eq initSymMemory(emptyList) = empty .
+    eq initSymMemory(PARAMETER) = (PARAMETER ->s PARAMETER) .
+    eq initSymMemory((PARAMETER , REST_FORMALS)) =
+        (PARAMETER ->s PARAMETER) , initSymMemory(REST_FORMALS) .
+
+    op bindSymArgs : List List SymMemory -> SymMemory .
+    eq bindSymArgs(emptyList, emptyList, SYMBOLIC_MEMORY) = SYMBOLIC_MEMORY .
+    eq bindSymArgs(PARAMETER, ARG, SYMBOLIC_MEMORY) =
+        updateSym(SYMBOLIC_MEMORY, PARAMETER, evalSymA(ARG, SYMBOLIC_MEMORY)) .
+    eq bindSymArgs((PARAMETER , REST_FORMALS), (ARG , REST_ARGS), SYMBOLIC_MEMORY) =
+        bindSymArgs(
+            REST_FORMALS,
+            REST_ARGS,
+            updateSym(SYMBOLIC_MEMORY, PARAMETER, evalSymA(ARG, SYMBOLIC_MEMORY))
+        ) .
+endm

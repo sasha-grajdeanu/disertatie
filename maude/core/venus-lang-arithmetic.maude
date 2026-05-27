@@ -1,0 +1,29 @@
+mod VENUS-ARITHMETIC is
+    protecting VENUS-CONFIG .
+    
+    var CONTROL : Control .
+    var STACK : Stack .
+    var MEMORY : Memory .
+    vars INT_VAL INT_VAL1 INT_VAL2 : Int .
+    var X : Var .
+    vars AE1 AE2 : AExpr .
+    
+    rl [IntControl] : < INT_VAL # CONTROL | STACK | MEMORY > => < CONTROL | INT_VAL $ STACK | MEMORY > .
+
+    crl [VarControl] : < X # CONTROL | STACK | MEMORY > => < CONTROL | INT_VAL $ STACK | MEMORY > if INT_VAL := get(MEMORY, X) .
+
+    rl [AddControl] : < (AE1 + AE2) # CONTROL | STACK | MEMORY > => < AE1 # AE2 # cAdd # CONTROL | STACK | MEMORY > .
+    rl [AddEval] : < cAdd # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | (INT_VAL1 + INT_VAL2) $ STACK | MEMORY > .
+
+    rl [SubControl] : < _-_(AE1, AE2) # CONTROL | STACK | MEMORY > => < AE1 # AE2 # cSub # CONTROL | STACK | MEMORY > .
+    rl [SubEval] : < cSub # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | _-_(INT_VAL1, INT_VAL2) $ STACK | MEMORY > .
+
+    rl [MulControl] : < (AE1 * AE2) # CONTROL | STACK | MEMORY > => < AE1 # AE2 # cMul # CONTROL | STACK | MEMORY > .
+    rl [MulEval] : < cMul # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | (INT_VAL1 * INT_VAL2) $ STACK | MEMORY > .
+
+    rl [DivControl] : < (AE1 / AE2) # CONTROL | STACK | MEMORY > => < AE1 # AE2 # cDiv # CONTROL | STACK | MEMORY > .
+    crl [DivEval] : < cDiv # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | (INT_VAL1 quo INT_VAL2) $ STACK | MEMORY > if (INT_VAL2 =/= 0) .
+
+    rl [ModControl] : < (AE1 % AE2) # CONTROL | STACK | MEMORY > => < AE1 # AE2 # cMod # CONTROL | STACK | MEMORY > .
+    crl [ModEval] : < cMod # CONTROL | INT_VAL2 $ INT_VAL1 $ STACK | MEMORY > => < CONTROL | (INT_VAL1 rem INT_VAL2) $ STACK | MEMORY > if (INT_VAL2 =/= 0) .
+endm

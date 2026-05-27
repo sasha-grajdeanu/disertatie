@@ -1,0 +1,33 @@
+mod VENUS-INSTRUCTIONS is
+    protecting VENUS-CONFIG .
+
+    vars CONTROL CONTROL_AFTER : Control .
+    var STACK : Stack .
+    var MEMORY : Memory .
+
+    vars INST INST1 INST2 : FInst .
+    var BE : BExpr .
+    var X : Var .
+    var AE : AExpr .
+    var N : Int .
+
+    rl [AssignControl] : < (X := AE) # CONTROL | STACK | MEMORY > => < AE # cAssign # CONTROL | X $ STACK | MEMORY > .
+    rl [AssignEval] : < cAssign # CONTROL | N $ X $ STACK | MEMORY > => < CONTROL | STACK | update(MEMORY, X, N) > .
+
+    rl [ReturnControl] : < (return AE) # CONTROL | STACK | MEMORY > => < AE # cReturn # CONTROL | STACK | MEMORY > .
+    rl [ReturnEval] : < cReturn # CONTROL # cEndCall(CONTROL_AFTER) | N $ STACK | MEMORY > =>
+                      < CONTROL_AFTER | STACK | update(MEMORY, 'result, N) > .
+
+    rl [SkipControl] : < skip # CONTROL | STACK | MEMORY > => < CONTROL | STACK | MEMORY > .
+    
+    rl [SeqControl] : < (INST1 INST2) # CONTROL | STACK | MEMORY > => < INST1 # INST2 # CONTROL | STACK | MEMORY > .
+    rl [EndCallControl] : < cEndCall(CONTROL) | STACK | MEMORY > => < CONTROL | STACK | MEMORY > .
+    
+    rl [WhileControl] : < (while BE do INST od) # CONTROL | STACK | MEMORY > => < BE # cWhile # CONTROL | (while BE do INST od) $ STACK | MEMORY > .
+    rl [WhileEvalTrue] : < cWhile # CONTROL | true $ (while BE do INST od) $ STACK | MEMORY > => < INST # (while BE do INST od) # CONTROL | STACK | MEMORY > .
+    rl [WhileEvalFalse] : < cWhile # CONTROL | false $ (while BE do INST od) $ STACK | MEMORY > => < CONTROL | STACK | MEMORY > .
+    
+    rl [IfControl] : < (if BE then INST1 else INST2 fi) # CONTROL | STACK | MEMORY > => < BE # cIf # CONTROL | INST1 $ INST2 $ STACK | MEMORY > .
+    rl [IfEvalTrue] : < cIf # CONTROL | true $ INST1 $ INST2 $ STACK | MEMORY > => < INST1 # CONTROL | STACK | MEMORY > .
+    rl [IfEvalFalse] : < cIf # CONTROL | false $ INST1 $ INST2 $ STACK | MEMORY > => < INST2 # CONTROL | STACK | MEMORY > .
+endm

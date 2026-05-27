@@ -1,0 +1,40 @@
+mod VENUS-FUNCTIONS is
+    protecting VENUS-CONFIG .
+
+    var CONTROL : Control .
+    var STACK : Stack .
+    var MEMORY : Memory .
+
+    var BODY : FInst .
+    vars FUNC PARAM : Var .
+    vars FORMALS ARGS REST : List .
+    var ARG : AExpr .
+    var VALUE : Int .
+
+    rl [DefineFunction] : < (def FUNC (FORMALS) { BODY }) # CONTROL | STACK | MEMORY > =>
+                           < CONTROL | STACK | (FUNC => [FORMALS, BODY]) , MEMORY > .
+
+    rl [StartCall] : < (call FUNC ( ARGS )) # CONTROL | STACK | MEMORY > =>
+                     < ARGS # cCall(FUNC) # CONTROL | STACK | MEMORY > .
+
+    rl [StartAssignCall] : < (PARAM := call FUNC ( ARGS )) # CONTROL | STACK | MEMORY > =>
+                           < (call FUNC ( ARGS )) # cAssignReturn(PARAM) # CONTROL | STACK | MEMORY > .
+
+    rl [AssignCallResult] : < cAssignReturn(PARAM) # CONTROL | STACK | MEMORY > =>
+                            < CONTROL | STACK | update(MEMORY, PARAM, get(MEMORY, 'result)) > .
+
+    rl [EvalEmptyList] : < emptyList # CONTROL | STACK | MEMORY > =>
+                         < CONTROL | STACK | MEMORY > .
+    crl [EvalArgList] : < (ARG , REST) # CONTROL | STACK | MEMORY > =>
+                        < REST # ARG # CONTROL | STACK | MEMORY > if REST =/= emptyList .
+
+    rl [EnterFunction] : < cCall(FUNC) # CONTROL | STACK | (FUNC => [FORMALS, BODY]) , MEMORY > =>
+                         < cBind(FORMALS) # BODY # cEndCall(CONTROL) | STACK | (FUNC => [FORMALS, BODY]) , MEMORY > .
+                       
+    crl [BindNextArg] : < cBind((PARAM , REST)) # CONTROL | VALUE $ STACK | MEMORY > =>
+                        < cBind(REST) # CONTROL | STACK | update(MEMORY, PARAM, VALUE) > if REST =/= emptyList .
+    rl [BindLastArg] : < cBind(PARAM) # CONTROL | VALUE $ STACK | MEMORY > =>
+                       < CONTROL | STACK | update(MEMORY, PARAM, VALUE) > .
+    rl [BindDone] : < cBind(emptyList) # CONTROL | STACK | MEMORY > =>
+                    < CONTROL | STACK | MEMORY > .
+endm

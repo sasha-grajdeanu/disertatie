@@ -1,0 +1,21 @@
+mod VENUS-DESUGARING is
+    protecting VENUS-SYNTAX .
+    var Func : Var .
+    var Cond : BExpr .
+    var Iter : Var .
+    vars Start Stop : AExpr .
+    var Body : FInst .
+
+    eq def Func ( ) { Body } = def Func ( emptyList ) { Body } .
+    eq call Func ( ) = call Func ( emptyList ) .
+    eq Iter := call Func ( ) = Iter := call Func ( emptyList ) .
+
+    eq for Iter in range ( Start , Stop ) do Body od =
+        (Iter := Start)
+        (while (Iter lt Stop) do
+            Body
+            (Iter := Iter + 1)
+        od) .
+
+    eq if Cond then Body fi = if Cond then Body else skip fi .
+endm

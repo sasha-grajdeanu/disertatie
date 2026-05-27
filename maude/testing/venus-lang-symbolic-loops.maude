@@ -1,0 +1,107 @@
+mod VENUS-SYMBOLIC-LOOPS is
+    protecting VENUS-SYMBOLIC-STATE .
+
+    var BODY : FInst .
+    var CONDITION : BExpr .
+    var DIVISOR : AExpr .
+    var REMAINING_DEPTH : Int .
+    var CONTROL : Control .
+    var PATH_CONDITION : BExpr .
+    var SYMBOLIC_MEMORY : SymMemory .
+
+    op loopDepth : -> Int .
+    eq loopDepth = 3 [owise] .
+
+    op cSymWhile : BExpr FInst Int -> Control .
+
+    rl [WhileSymStart] :
+        sState [ (while CONDITION do BODY od) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sState [ cSymWhile(CONDITION, BODY, loopDepth) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ] .
+
+    crl [WhileSymConditionDivisionByZero] :
+        sState [ cSymWhile(CONDITION, BODY, REMAINING_DEPTH) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sBug [ divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)
+             | SYMBOLIC_MEMORY ]
+        if hasDivB(CONDITION)
+        /\ DIVISOR := getDivisorB(CONDITION)
+        /\ feasible(divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)) .
+
+    crl [WhileSymIterate] :
+        sState [ cSymWhile(CONDITION, BODY, REMAINING_DEPTH) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sState [ BODY # cSymWhile(CONDITION, BODY, _-_(REMAINING_DEPTH, 1)) # CONTROL
+               | thenPC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)
+               | SYMBOLIC_MEMORY ]
+        if REMAINING_DEPTH > 0
+        /\ not hasDivB(CONDITION)
+        /\ feasible(thenPC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)) .
+
+    crl [WhileSymIterateDivisionSafe] :
+        sState [ cSymWhile(CONDITION, BODY, REMAINING_DEPTH) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sState [ BODY # cSymWhile(CONDITION, BODY, _-_(REMAINING_DEPTH, 1)) # CONTROL
+               | thenSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY)
+               | SYMBOLIC_MEMORY ]
+        if REMAINING_DEPTH > 0
+        /\ hasDivB(CONDITION)
+        /\ DIVISOR := getDivisorB(CONDITION)
+        /\ feasible(thenSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY)) .
+
+    crl [WhileSymExit] :
+        sState [ cSymWhile(CONDITION, BODY, REMAINING_DEPTH) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sState [ CONTROL
+               | elsePC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)
+               | SYMBOLIC_MEMORY ]
+        if not hasDivB(CONDITION)
+        /\ feasible(elsePC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)) .
+
+    crl [WhileSymExitDivisionSafe] :
+        sState [ cSymWhile(CONDITION, BODY, REMAINING_DEPTH) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sState [ CONTROL
+               | elseSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY)
+               | SYMBOLIC_MEMORY ]
+        if hasDivB(CONDITION)
+        /\ DIVISOR := getDivisorB(CONDITION)
+        /\ feasible(elseSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY)) .
+
+    crl [WhileSymDepthLimit] :
+        sState [ cSymWhile(CONDITION, BODY, 0) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sState [ CONTROL
+               | elsePC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)
+               | SYMBOLIC_MEMORY ]
+        if not hasDivB(CONDITION)
+        /\ feasible(elsePC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)) .
+
+    crl [WhileSymDepthLimitDivisionSafe] :
+        sState [ cSymWhile(CONDITION, BODY, 0) # CONTROL
+               | PATH_CONDITION
+               | SYMBOLIC_MEMORY ]
+        =>
+        sState [ CONTROL
+               | elseSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY)
+               | SYMBOLIC_MEMORY ]
+        if hasDivB(CONDITION)
+        /\ DIVISOR := getDivisorB(CONDITION)
+        /\ feasible(elseSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY)) .
+endm
