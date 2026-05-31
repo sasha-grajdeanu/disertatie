@@ -1,0 +1,23 @@
+def 'guarded_ratio ('total, 'count, 'limit) {
+    if ('count lte 0) then
+        return 0
+    else
+        if ('total lt 0) then
+            'adjusted := 0
+            'ratio := 'adjusted / 'count
+            if ('ratio gt 'limit) then
+                return 'limit
+            else
+                return 'ratio
+            fi
+        else
+            'adjusted := 'total
+            'ratio := 'adjusted / 'count
+            if ('ratio gt 'limit) then
+                return 'limit
+            else
+                return 'ratio
+            fi
+        fi
+    fi
+}

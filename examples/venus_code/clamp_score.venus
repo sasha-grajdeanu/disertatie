@@ -1,0 +1,11 @@
+def 'clamp_score ('score) {
+    if ('score lt 0) then
+        return 0
+    else
+        if ('score gt 100) then
+            return 100
+        else
+            return 'score
+        fi
+    fi
+}

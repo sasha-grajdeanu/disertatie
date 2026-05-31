@@ -1,0 +1,18 @@
+def 'capped_countdown_sum ('n, 'limit) {
+    'total := 0
+    'i := 0
+    'result := 'total
+    while ('i lt 'n) do
+        'total := 'total + 'i
+        if ('total gt 'limit) then
+            'total := 'limit
+            'result := 'total
+            'i := 'i + 1
+        else
+            skip
+            'result := 'total
+            'i := 'i + 1
+        fi
+    od
+    return 'total
+}

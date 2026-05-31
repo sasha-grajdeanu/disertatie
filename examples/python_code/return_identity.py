@@ -1,0 +1,2 @@
+def return_identity(x):
+    return x

@@ -1,0 +1,6 @@
+def 'safe_ratio ('x, 'y) {
+    if ('y eq 0) then
+        return 0
+    fi
+    return 'x / 'y
+}

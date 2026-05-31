@@ -1,0 +1,7 @@
+def 'for_loop_sum ('n) {
+    'total := 0
+    for 'i in range (0, 'n) do
+        'total := 'total + 'i
+    od
+    return 'total
+}

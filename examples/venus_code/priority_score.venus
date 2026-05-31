@@ -1,0 +1,21 @@
+def 'priority_score ('age, 'income, 'flags) {
+    'score := 0
+    if ('age lt 18) then
+        'score := 'score - 5
+    else
+        if (('income gt 5000) and ('flags gt 0)) then
+            'score := 'score + 10
+        else
+            if (('income gt 3000) or ('flags gt 2)) then
+                'score := 'score + 5
+            else
+                'score := 'score + 1
+            fi
+        fi
+    fi
+    if ('score lt 0) then
+        return 0
+    else
+        return 'score
+    fi
+}

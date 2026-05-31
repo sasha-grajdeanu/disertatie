@@ -1,7 +1,0 @@
-def 'checkAge ('age) {
-    if ('age gte 18) then
-        'status := 1
-    else
-        'status := 0
-    fi
-}

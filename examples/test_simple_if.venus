@@ -1,7 +1,0 @@
-def 'checkStatus ('score) {
-    'passed := 0 ;
-    if ('score gte 50) then
-        'passed := 1
-    fi ;
-    'checked := 1
-}
