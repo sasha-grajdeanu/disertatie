@@ -1,0 +1,151 @@
+{
+  "status": "ok",
+  "source_file": "examples/venus_code/capped_countdown_sum.venus",
+  "loop_depth": 3,
+  "functions": {
+    "capped_countdown_sum": [
+      "n",
+      "limit"
+    ]
+  },
+  "summary": {
+    "functions": 1,
+    "symbolic_paths": 10,
+    "safe_paths": 10,
+    "bug_paths": 0
+  },
+  "source_code": "def 'capped_countdown_sum ('n, 'limit) {\n    'total := 0\n    'i := 0\n    'result := 'total\n    while ('i lt 'n) do\n        'total := 'total + 'i\n        if ('total gt 'limit) then\n            'total := 'limit\n            'result := 'total\n            'i := 'i + 1\n        else\n            skip\n            'result := 'total\n            'i := 'i + 1\n        fi\n    od\n    return 'total\n}",
+  "paths": [
+    {
+      "index": 1,
+      "type": "safe",
+      "tested_func": "capped_countdown_sum",
+      "path_condition": "0 gte 'n",
+      "variables": {
+        "i": "0",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "0",
+        "total": "0"
+      }
+    },
+    {
+      "index": 2,
+      "type": "safe",
+      "tested_func": "capped_countdown_sum",
+      "path_condition": "(0 lt 'n) and (0 gt 'limit) and (1 gte 'n)",
+      "variables": {
+        "i": "1",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "'limit",
+        "total": "'limit"
+      }
+    },
+    {
+      "index": 3,
+      "type": "safe",
+      "tested_func": "capped_countdown_sum",
+      "path_condition": "(0 lt 'n) and (0 lte 'limit) and (1 gte 'n)",
+      "variables": {
+        "i": "1",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "0",
+        "total": "0"
+      }
+    },
+    {
+      "index": 4,
+      "type": "safe",
+      "tested_func": "capped_countdown_sum",
+      "path_condition": "(0 lt 'n) and (0 gt 'limit) and (1 lt 'n) and (2 gte 'n)",
+      "variables": {
+        "i": "2",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "'limit",
+        "total": "'limit"
+      }
+    },
+    {
+      "index": 5,
+      "type": "safe",
+      "tested_func": "capped_countdown_sum",
+      "path_condition": "(0 lt 'n) and (0 lte 'limit) and (1 lt 'n) and (1 gt 'limit) and (2 gte 'n)",
+      "variables": {
+        "i": "2",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "'limit",
+        "total": "'limit"
+      }
+    },
+    {
+      "index": 6,
+      "type": "safe",
+      "tested_func": "capped_countdown_sum",
+      "path_condition": "(0 lt 'n) and (0 lte 'limit) and (1 lt 'n) and (1 lte 'limit) and (2 gte 'n)",
+      "variables": {
+        "i": "2",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "1",
+        "total": "1"
+      }
+    },
+    {
+      "index": 7,
+      "type": "safe",
+      "tested_func": "capped_countdown_sum",
+      "path_condition": "(0 lt 'n) and (0 gt 'limit) and (1 lt 'n) and (2 lt 'n) and (3 gte 'n)",
+      "variables": {
+        "i": "3",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "'limit",
+        "total": "'limit"
+      }
+    },
+    {
+      "index": 8,
+      "type": "safe",
+      "tested_func": "capped_countdown_sum",
+      "path_condition": "(0 lt 'n) and (0 lte 'limit) and (1 lt 'n) and (1 gt 'limit) and (2 lt 'n) and (3 gte 'n)",
+      "variables": {
+        "i": "3",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "'limit",
+        "total": "'limit"
+      }
+    },
+    {
+      "index": 9,
+      "type": "safe",
+      "tested_func": "capped_countdown_sum",
+      "path_condition": "(0 lt 'n) and (0 lte 'limit) and (1 lt 'n) and (1 lte 'limit) and (2 lt 'n) and (3 gt 'limit) and (3 gte 'n)",
+      "variables": {
+        "i": "3",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "'limit",
+        "total": "'limit"
+      }
+    },
+    {
+      "index": 10,
+      "type": "safe",
+      "tested_func": "capped_countdown_sum",
+      "path_condition": "(0 lt 'n) and (0 lte 'limit) and (1 lt 'n) and (1 lte 'limit) and (2 lt 'n) and (3 lte 'limit) and (3 gte 'n)",
+      "variables": {
+        "i": "3",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "3",
+        "total": "3"
+      }
+    }
+  ],
+  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)\nresult Inst: def 'capped_countdown_sum('n, 'limit){'total := 0 'i := 0 'result := 'total while 'i lt 'n do 'total := 'i + 'total if 'total gt 'limit then 'total := 'limit 'result := 'total 'i := 'i + 1 else skip 'result := 'total 'i := 'i + 1 fi od return 'total}\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 37)\nstates: 39  rewrites: 260 in 0ms cpu (0ms real) (261832 rewrites/second)\nS:SymState --> sState[cNil | 0 gte 'n | tested('capped_countdown_sum), ('i ->s 0), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 0), ('total ->s 0), 'capped_countdown_sum =>['n, 'limit, 'total := 0 'i := 0 'result := 'total while 'i lt 'n do 'total := 'i + 'total if 'total gt 'limit then 'total := 'limit 'result := 'total 'i := 'i + 1 else skip 'result := 'total 'i := 'i + 1 fi od return 'total]]\n\nSolution 2 (state 60)\nstates: 64  rewrites: 652 in 0ms cpu (0ms real) (656596 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 gt 'limit) and (1 gte 'n) | tested('capped_countdown_sum), ('i ->s 1), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 'limit), ('total ->s 'limit), 'capped_countdown_sum =>['n, 'limit, 'total := 0 'i := 0 'result := 'total while 'i lt 'n do 'total := 'i + 'total if 'total gt 'limit then 'total := 'limit 'result := 'total 'i := 'i + 1 else skip 'result := 'total 'i := 'i + 1 fi od return 'total]]\n\nSolution 3 (state 62)\nstates: 65  rewrites: 683 in 0ms cpu (0ms real) (687814 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 lte 'limit) and (1 gte 'n) | tested('capped_countdown_sum), ('i ->s 1), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 0), ('total ->s 0), 'capped_countdown_sum =>['n, 'limit, 'total := 0 'i := 0 'result := 'total while 'i lt 'n do 'total := 'i + 'total if 'total gt 'limit then 'total := 'limit 'result := 'total 'i := 'i + 1 else skip 'result := 'total 'i := 'i + 1 fi od return 'total]]\n\nSolution 4 (state 96)\nstates: 102  rewrites: 1423 in 0ms cpu (1ms real) (1433031 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 gt 'limit) and (1 lt 'n) and (2 gte 'n) | tested('capped_countdown_sum), ('i ->s 2), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 'limit), ('total ->s 'limit), 'capped_countdown_sum =>['n, 'limit, 'total := 0 'i := 0 'result := 'total while 'i lt 'n do 'total := 'i + 'total if 'total gt 'limit then 'total := 'limit 'result := 'total 'i := 'i + 1 else skip 'result := 'total 'i := 'i + 1 fi od return 'total]]\n\nSolution 5 (state 98)\nstates: 103  rewrites: 1453 in 1ms cpu (1ms real) (731989 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 lte 'limit) and (1 lt 'n) and (1 gt 'limit) and (2 gte 'n) | tested('capped_countdown_sum), ('i ->s 2), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 'limit), ('total ->s 'limit), 'capped_countdown_sum =>['n, 'limit, 'total := 0 'i := 0 'result := 'total while 'i lt 'n do 'total := 'i + 'total if 'total gt 'limit then 'total := 'limit 'result := 'total 'i := 'i + 1 else skip 'result := 'total 'i := 'i + 1 fi od return 'total]]\n\nSolution 6 (state 100)\nstates: 104  rewrites: 1484 in 1ms cpu (1ms real) (747607 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 lte 'limit) and (1 lt 'n) and (1 lte 'limit) and (2 gte 'n) | tested('capped_countdown_sum), ('i ->s 2), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 1), ('total ->s 1), 'capped_countdown_sum =>['n, 'limit, 'total := 0 'i := 0 'result := 'total while 'i lt 'n do 'total := 'i + 'total if 'total gt 'limit then 'total := 'limit 'result := 'total 'i := 'i + 1 else skip 'result := 'total 'i := 'i + 1 fi od return 'total]]\n\nSolution 7 (state 140)\nstates: 144  rewrites: 2606 in 1ms cpu (1ms real) (1312846 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 gt 'limit) and (1 lt 'n) and (2 lt 'n) and (3 gte 'n) | tested('capped_countdown_sum), ('i ->s 3), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 'limit), ('total ->s 'limit), 'capped_countdown_sum =>['n, 'limit, 'total := 0 'i := 0 'result := 'total while 'i lt 'n do 'total := 'i + 'total if 'total gt 'limit then 'total := 'limit 'result := 'total 'i := 'i + 1 else skip 'result := 'total 'i := 'i + 1 fi od return 'total]]\n\nSolution 8 (state 141)\nstates: 144  rewrites: 2606 in 1ms cpu (1ms real) (1312846 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 lte 'limit) and (1 lt 'n) and (1 gt 'limit) and (2 lt 'n) and (3 gte 'n) | tested('capped_countdown_sum), ('i ->s 3), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 'limit), ('total ->s 'limit), 'capped_countdown_sum =>['n, 'limit, 'total := 0 'i := 0 'result := 'total while 'i lt 'n do 'total := 'i + 'total if 'total gt 'limit then 'total := 'limit 'result := 'total 'i := 'i + 1 else skip 'result := 'total 'i := 'i + 1 fi od return 'total]]\n\nSolution 9 (state 142)\nstates: 144  rewrites: 2606 in 2ms cpu (2ms real) (875672 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 lte 'limit) and (1 lt 'n) and (1 lte 'limit) and (2 lt 'n) and (3 gt 'limit) and (3 gte 'n) | tested('capped_countdown_sum), ('i ->s 3), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 'limit), ('total ->s 'limit), 'capped_countdown_sum =>['n, 'limit, 'total := 0 'i := 0 'result := 'total while 'i lt 'n do 'total := 'i + 'total if 'total gt 'limit then 'total := 'limit 'result := 'total 'i := 'i + 1 else skip 'result := 'total 'i := 'i + 1 fi od return 'total]]\n\nSolution 10 (state 143)\nstates: 144  rewrites: 2606 in 2ms cpu (2ms real) (875672 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 lte 'limit) and (1 lt 'n) and (1 lte 'limit) and (2 lt 'n) and (3 lte 'limit) and (3 gte 'n) | tested('capped_countdown_sum), ('i ->s 3), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 3), ('total ->s 3), 'capped_countdown_sum =>['n, 'limit, 'total := 0 'i := 0 'result := 'total while 'i lt 'n do 'total := 'i + 'total if 'total gt 'limit then 'total := 'limit 'result := 'total 'i := 'i + 1 else skip 'result := 'total 'i := 'i + 1 fi od return 'total]]\n\nNo more solutions.\nstates: 144  rewrites: 2606 in 2ms cpu (2ms real) (875672 rewrites/second)\nBye.\n"
+}

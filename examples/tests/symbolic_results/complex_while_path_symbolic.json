@@ -1,0 +1,133 @@
+{
+  "status": "ok",
+  "source_file": "examples/venus_code/complex_while_path.venus",
+  "loop_depth": 3,
+  "functions": {
+    "complex_while_path": [
+      "n",
+      "limit"
+    ]
+  },
+  "summary": {
+    "functions": 1,
+    "symbolic_paths": 8,
+    "safe_paths": 8,
+    "bug_paths": 0
+  },
+  "source_code": "def 'complex_while_path ('n, 'limit) {\n    'i := 0\n    'score := 0\n    'step := 1\n    'result := 'score\n    while (('i lt 'n) and ('score lte 'limit)) do\n        if ('i lt 2) then\n            'score := 'score + 'step + 'i\n        else\n            if (('score + 'step) gt 'limit) then\n                'score := 'score + 1\n            else\n                'score := 'score + 'step\n            fi\n        fi\n\n        if ('score gt 'limit) then\n            'result := 'limit\n        else\n            'result := 'score\n        fi\n\n        'i := 'i + 1\n        'step := 'step + 1\n    od\n    return 'result\n}",
+  "paths": [
+    {
+      "index": 1,
+      "type": "safe",
+      "tested_func": "complex_while_path",
+      "path_condition": "(0 gte 'n) or (0 gt 'limit)",
+      "variables": {
+        "i": "0",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "0",
+        "score": "0",
+        "step": "1"
+      }
+    },
+    {
+      "index": 2,
+      "type": "safe",
+      "tested_func": "complex_while_path",
+      "path_condition": "(0 lt 'n) and (0 lte 'limit) and (1 gt 'limit) and ((1 gte 'n) or (1 gt 'limit))",
+      "variables": {
+        "i": "1",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "'limit",
+        "score": "1",
+        "step": "2"
+      }
+    },
+    {
+      "index": 3,
+      "type": "safe",
+      "tested_func": "complex_while_path",
+      "path_condition": "(0 lt 'n) and (0 lte 'limit) and (1 lte 'limit) and ((1 gte 'n) or (1 gt 'limit))",
+      "variables": {
+        "i": "1",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "1",
+        "score": "1",
+        "step": "2"
+      }
+    },
+    {
+      "index": 4,
+      "type": "safe",
+      "tested_func": "complex_while_path",
+      "path_condition": "(0 lt 'n) and (0 lte 'limit) and (1 lte 'limit) and ((1 lt 'n) and (1 lte 'limit)) and (4 gt 'limit) and ((2 gte 'n) or (4 gt 'limit))",
+      "variables": {
+        "i": "2",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "'limit",
+        "score": "4",
+        "step": "3"
+      }
+    },
+    {
+      "index": 5,
+      "type": "safe",
+      "tested_func": "complex_while_path",
+      "path_condition": "(0 lt 'n) and (0 lte 'limit) and (1 lte 'limit) and ((1 lt 'n) and (1 lte 'limit)) and (4 lte 'limit) and ((2 gte 'n) or (4 gt 'limit))",
+      "variables": {
+        "i": "2",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "4",
+        "score": "4",
+        "step": "3"
+      }
+    },
+    {
+      "index": 6,
+      "type": "safe",
+      "tested_func": "complex_while_path",
+      "path_condition": "(0 lt 'n) and (0 lte 'limit) and (1 lte 'limit) and ((1 lt 'n) and (1 lte 'limit)) and (4 lte 'limit) and ((2 lt 'n) and (4 lte 'limit)) and (7 gt 'limit) and (5 gt 'limit) and ((3 gte 'n) or (5 gt 'limit))",
+      "variables": {
+        "i": "3",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "'limit",
+        "score": "5",
+        "step": "4"
+      }
+    },
+    {
+      "index": 7,
+      "type": "safe",
+      "tested_func": "complex_while_path",
+      "path_condition": "(0 lt 'n) and (0 lte 'limit) and (1 lte 'limit) and ((1 lt 'n) and (1 lte 'limit)) and (4 lte 'limit) and ((2 lt 'n) and (4 lte 'limit)) and (7 gt 'limit) and (5 lte 'limit) and ((3 gte 'n) or (5 gt 'limit))",
+      "variables": {
+        "i": "3",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "5",
+        "score": "5",
+        "step": "4"
+      }
+    },
+    {
+      "index": 8,
+      "type": "safe",
+      "tested_func": "complex_while_path",
+      "path_condition": "(0 lt 'n) and (0 lte 'limit) and (1 lte 'limit) and ((1 lt 'n) and (1 lte 'limit)) and (4 lte 'limit) and ((2 lt 'n) and (4 lte 'limit)) and (7 lte 'limit) and (7 lte 'limit) and ((3 gte 'n) or (7 gt 'limit))",
+      "variables": {
+        "i": "3",
+        "limit": "'limit",
+        "n": "'n",
+        "result": "7",
+        "score": "7",
+        "step": "4"
+      }
+    }
+  ],
+  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 6 in 0ms cpu (0ms real) (~ rewrites/second)\nresult Inst: def 'complex_while_path('n, 'limit){'i := 0 'score := 0 'step := 1 'result := 'score while ('i lt 'n) and ('score lte 'limit) do if 'i lt 2 then 'score := 'i + 'score + 'step else if 'score + 'step gt 'limit then 'score := 'score + 1 else 'score := 'score + 'step fi fi if 'score gt 'limit then 'result := 'limit else 'result := 'score fi 'i := 'i + 1 'step := 'step + 1 od return 'result}\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 71)\nstates: 76  rewrites: 538 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sState[cNil | (0 gte 'n) or (0 gt 'limit) | tested('complex_while_path), ('i ->s 0), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 0), ('score ->s 0), ('step ->s 1), 'complex_while_path =>['n, 'limit, 'i := 0 'score := 0 'step := 1 'result := 'score while ('i lt 'n) and ('score lte 'limit) do if 'i lt 2 then 'score := 'i + 'score + 'step else if 'score + 'step gt 'limit then 'score := 'score + 1 else 'score := 'score + 'step fi fi if 'score gt 'limit then 'result := 'limit else 'result := 'score fi 'i := 'i + 1 'step := 'step + 1 od return 'result]]\n\nSolution 2 (state 99)\nstates: 104  rewrites: 1749 in 0ms cpu (0ms real) (1764883 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 lte 'limit) and (1 gt 'limit) and ((1 gte 'n) or (1 gt 'limit)) | tested('complex_while_path), ('i ->s 1), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 'limit), ('score ->s 1), ('step ->s 2), 'complex_while_path =>['n, 'limit, 'i := 0 'score := 0 'step := 1 'result := 'score while ('i lt 'n) and ('score lte 'limit) do if 'i lt 2 then 'score := 'i + 'score + 'step else if 'score + 'step gt 'limit then 'score := 'score + 1 else 'score := 'score + 'step fi fi if 'score gt 'limit then 'result := 'limit else 'result := 'score fi 'i := 'i + 1 'step := 'step + 1 od return 'result]]\n\nSolution 3 (state 103)\nstates: 108  rewrites: 1811 in 0ms cpu (1ms real) (1827447 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 lte 'limit) and (1 lte 'limit) and ((1 gte 'n) or (1 gt 'limit)) | tested('complex_while_path), ('i ->s 1), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 1), ('score ->s 1), ('step ->s 2), 'complex_while_path =>['n, 'limit, 'i := 0 'score := 0 'step := 1 'result := 'score while ('i lt 'n) and ('score lte 'limit) do if 'i lt 2 then 'score := 'i + 'score + 'step else if 'score + 'step gt 'limit then 'score := 'score + 1 else 'score := 'score + 'step fi fi if 'score gt 'limit then 'result := 'limit else 'result := 'score fi 'i := 'i + 1 'step := 'step + 1 od return 'result]]\n\nSolution 4 (state 131)\nstates: 136  rewrites: 3356 in 0ms cpu (1ms real) (3386478 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 lte 'limit) and (1 lte 'limit) and ((1 lt 'n) and (1 lte 'limit)) and (4 gt 'limit) and ((2 gte 'n) or (4 gt 'limit)) | tested('complex_while_path), ('i ->s 2), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 'limit), ('score ->s 4), ('step ->s 3), 'complex_while_path =>['n, 'limit, 'i := 0 'score := 0 'step := 1 'result := 'score while ('i lt 'n) and ('score lte 'limit) do if 'i lt 2 then 'score := 'i + 'score + 'step else if 'score + 'step gt 'limit then 'score := 'score + 1 else 'score := 'score + 'step fi fi if 'score gt 'limit then 'result := 'limit else 'result := 'score fi 'i := 'i + 1 'step := 'step + 1 od return 'result]]\n\nSolution 5 (state 135)\nstates: 140  rewrites: 3420 in 0ms cpu (1ms real) (3451059 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 lte 'limit) and (1 lte 'limit) and ((1 lt 'n) and (1 lte 'limit)) and (4 lte 'limit) and ((2 gte 'n) or (4 gt 'limit)) | tested('complex_while_path), ('i ->s 2), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 4), ('score ->s 4), ('step ->s 3), 'complex_while_path =>['n, 'limit, 'i := 0 'score := 0 'step := 1 'result := 'score while ('i lt 'n) and ('score lte 'limit) do if 'i lt 2 then 'score := 'i + 'score + 'step else if 'score + 'step gt 'limit then 'score := 'score + 1 else 'score := 'score + 'step fi fi if 'score gt 'limit then 'result := 'limit else 'result := 'score fi 'i := 'i + 1 'step := 'step + 1 od return 'result]]\n\nSolution 6 (state 181)\nstates: 184  rewrites: 7409 in 1ms cpu (2ms real) (3738143 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 lte 'limit) and (1 lte 'limit) and ((1 lt 'n) and (1 lte 'limit)) and (4 lte 'limit) and ((2 lt 'n) and (4 lte 'limit)) and (7 gt 'limit) and (5 gt 'limit) and ((3 gte 'n) or (5 gt 'limit)) | tested('complex_while_path), ('i ->s 3), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 'limit), ('score ->s 5), ('step ->s 4), 'complex_while_path =>['n, 'limit, 'i := 0 'score := 0 'step := 1 'result := 'score while ('i lt 'n) and ('score lte 'limit) do if 'i lt 2 then 'score := 'i + 'score + 'step else if 'score + 'step gt 'limit then 'score := 'score + 1 else 'score := 'score + 'step fi fi if 'score gt 'limit then 'result := 'limit else 'result := 'score fi 'i := 'i + 1 'step := 'step + 1 od return 'result]]\n\nSolution 7 (state 182)\nstates: 184  rewrites: 7409 in 1ms cpu (2ms real) (3738143 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 lte 'limit) and (1 lte 'limit) and ((1 lt 'n) and (1 lte 'limit)) and (4 lte 'limit) and ((2 lt 'n) and (4 lte 'limit)) and (7 gt 'limit) and (5 lte 'limit) and ((3 gte 'n) or (5 gt 'limit)) | tested('complex_while_path), ('i ->s 3), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 5), ('score ->s 5), ('step ->s 4), 'complex_while_path =>['n, 'limit, 'i := 0 'score := 0 'step := 1 'result := 'score while ('i lt 'n) and ('score lte 'limit) do if 'i lt 2 then 'score := 'i + 'score + 'step else if 'score + 'step gt 'limit then 'score := 'score + 1 else 'score := 'score + 'step fi fi if 'score gt 'limit then 'result := 'limit else 'result := 'score fi 'i := 'i + 1 'step := 'step + 1 od return 'result]]\n\nSolution 8 (state 183)\nstates: 184  rewrites: 7409 in 1ms cpu (2ms real) (3738143 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (0 lte 'limit) and (1 lte 'limit) and ((1 lt 'n) and (1 lte 'limit)) and (4 lte 'limit) and ((2 lt 'n) and (4 lte 'limit)) and (7 lte 'limit) and (7 lte 'limit) and ((3 gte 'n) or (7 gt 'limit)) | tested('complex_while_path), ('i ->s 3), ('limit ->s 'limit), ('n ->s 'n), ('result ->s 7), ('score ->s 7), ('step ->s 4), 'complex_while_path =>['n, 'limit, 'i := 0 'score := 0 'step := 1 'result := 'score while ('i lt 'n) and ('score lte 'limit) do if 'i lt 2 then 'score := 'i + 'score + 'step else if 'score + 'step gt 'limit then 'score := 'score + 1 else 'score := 'score + 'step fi fi if 'score gt 'limit then 'result := 'limit else 'result := 'score fi 'i := 'i + 1 'step := 'step + 1 od return 'result]]\n\nNo more solutions.\nstates: 184  rewrites: 7409 in 1ms cpu (2ms real) (3738143 rewrites/second)\nBye.\n"
+}

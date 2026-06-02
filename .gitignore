@@ -1,16 +1,18 @@
 # Maude temporary files
-.temp_runner.maude
-temp.maude
-test_syntax.maude
+.temp_*.maude
 
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
-.venv
+.venv/
 venv/
 ENV/
 
 # OS files
 .DS_Store
 Thumbs.db
+
+# IDE
+.vscode/
+.idea/

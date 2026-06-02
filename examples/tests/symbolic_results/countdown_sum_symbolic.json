@@ -1,0 +1,68 @@
+{
+  "status": "ok",
+  "source_file": "examples/venus_code/countdown_sum.venus",
+  "loop_depth": 3,
+  "functions": {
+    "countdown_sum": [
+      "n"
+    ]
+  },
+  "summary": {
+    "functions": 1,
+    "symbolic_paths": 4,
+    "safe_paths": 4,
+    "bug_paths": 0
+  },
+  "source_code": "def 'countdown_sum ('n) {\n    'total := 0\n    'i := 0\n    while ('i lt 'n) do\n        'total := 'total + 'i\n        'i := 'i + 1\n    od\n    return 'total\n}",
+  "paths": [
+    {
+      "index": 1,
+      "type": "safe",
+      "tested_func": "countdown_sum",
+      "path_condition": "0 gte 'n",
+      "variables": {
+        "i": "0",
+        "n": "'n",
+        "result": "0",
+        "total": "0"
+      }
+    },
+    {
+      "index": 2,
+      "type": "safe",
+      "tested_func": "countdown_sum",
+      "path_condition": "(0 lt 'n) and (1 gte 'n)",
+      "variables": {
+        "i": "1",
+        "n": "'n",
+        "result": "0",
+        "total": "0"
+      }
+    },
+    {
+      "index": 3,
+      "type": "safe",
+      "tested_func": "countdown_sum",
+      "path_condition": "(0 lt 'n) and (1 lt 'n) and (2 gte 'n)",
+      "variables": {
+        "i": "2",
+        "n": "'n",
+        "result": "1",
+        "total": "1"
+      }
+    },
+    {
+      "index": 4,
+      "type": "safe",
+      "tested_func": "countdown_sum",
+      "path_condition": "(0 lt 'n) and (1 lt 'n) and (2 lt 'n) and (3 gte 'n)",
+      "variables": {
+        "i": "3",
+        "n": "'n",
+        "result": "3",
+        "total": "3"
+      }
+    }
+  ],
+  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)\nresult Inst: def 'countdown_sum('n){'total := 0 'i := 0 while 'i lt 'n do 'total := 'i + 'total 'i := 'i + 1 od return 'total}\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 21)\nstates: 23  rewrites: 175 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sState[cNil | 0 gte 'n | tested('countdown_sum), ('i ->s 0), ('n ->s 'n), ('result ->s 0), ('total ->s 0), 'countdown_sum =>['n, 'total := 0 'i := 0 while 'i lt 'n do 'total := 'i + 'total 'i := 'i + 1 od return 'total]]\n\nSolution 2 (state 27)\nstates: 29  rewrites: 314 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (1 gte 'n) | tested('countdown_sum), ('i ->s 1), ('n ->s 'n), ('result ->s 0), ('total ->s 0), 'countdown_sum =>['n, 'total := 0 'i := 0 while 'i lt 'n do 'total := 'i + 'total 'i := 'i + 1 od return 'total]]\n\nSolution 3 (state 33)\nstates: 35  rewrites: 472 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (1 lt 'n) and (2 gte 'n) | tested('countdown_sum), ('i ->s 2), ('n ->s 'n), ('result ->s 1), ('total ->s 1), 'countdown_sum =>['n, 'total := 0 'i := 0 while 'i lt 'n do 'total := 'i + 'total 'i := 'i + 1 od return 'total]]\n\nSolution 4 (state 37)\nstates: 38  rewrites: 620 in 0ms cpu (0ms real) (625630 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (1 lt 'n) and (2 lt 'n) and (3 gte 'n) | tested('countdown_sum), ('i ->s 3), ('n ->s 'n), ('result ->s 3), ('total ->s 3), 'countdown_sum =>['n, 'total := 0 'i := 0 while 'i lt 'n do 'total := 'i + 'total 'i := 'i + 1 od return 'total]]\n\nNo more solutions.\nstates: 38  rewrites: 620 in 0ms cpu (0ms real) (625630 rewrites/second)\nBye.\n"
+}

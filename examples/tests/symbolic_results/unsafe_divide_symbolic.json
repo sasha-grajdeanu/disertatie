@@ -1,0 +1,42 @@
+{
+  "status": "ok",
+  "source_file": "examples/venus_code/unsafe_divide.venus",
+  "loop_depth": 3,
+  "functions": {
+    "unsafe_divide": [
+      "x",
+      "y"
+    ]
+  },
+  "summary": {
+    "functions": 1,
+    "symbolic_paths": 2,
+    "safe_paths": 1,
+    "bug_paths": 1
+  },
+  "source_code": "def 'unsafe_divide ('x, 'y) {\n    return 'x / 'y\n}",
+  "paths": [
+    {
+      "index": 1,
+      "type": "bug",
+      "tested_func": "unsafe_divide",
+      "path_condition": "'y eq 0",
+      "variables": {
+        "x": "'x",
+        "y": "'y"
+      }
+    },
+    {
+      "index": 2,
+      "type": "safe",
+      "tested_func": "unsafe_divide",
+      "path_condition": "'y neq 0",
+      "variables": {
+        "result": "'x / 'y",
+        "x": "'x",
+        "y": "'y"
+      }
+    }
+  ],
+  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)\nresult Inst: def 'unsafe_divide('x, 'y){return 'x / 'y}\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 4)\nstates: 6  rewrites: 41 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sBug['y eq 0 | tested('unsafe_divide), ('x ->s 'x), ('y ->s 'y), 'unsafe_divide =>['x, 'y, return 'x / 'y]]\n\nSolution 2 (state 5)\nstates: 6  rewrites: 41 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sState[cNil | 'y neq 0 | tested('unsafe_divide), ('result ->s 'x / 'y), ('x ->s 'x), ('y ->s 'y), 'unsafe_divide =>['x, 'y, return 'x / 'y]]\n\nNo more solutions.\nstates: 6  rewrites: 41 in 0ms cpu (0ms real) (41330 rewrites/second)\nBye.\n"
+}

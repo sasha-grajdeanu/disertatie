@@ -1,0 +1,45 @@
+{
+  "status": "ok",
+  "source_file": "examples/venus_code/call_assignment.venus",
+  "loop_depth": 3,
+  "functions": {
+    "call_assignment": [
+      "n"
+    ],
+    "inc": [
+      "x"
+    ]
+  },
+  "summary": {
+    "functions": 2,
+    "symbolic_paths": 2,
+    "safe_paths": 2,
+    "bug_paths": 0
+  },
+  "source_code": "def 'call_assignment ('n) {\n    'value := call 'inc ('n)\n    return 'value\n} def 'inc ('x) {\n    return 'x + 1\n}",
+  "paths": [
+    {
+      "index": 1,
+      "type": "safe",
+      "tested_func": "inc",
+      "path_condition": "true",
+      "variables": {
+        "result": "'x + 1",
+        "x": "'x"
+      }
+    },
+    {
+      "index": 2,
+      "type": "safe",
+      "tested_func": "call_assignment",
+      "path_condition": "true",
+      "variables": {
+        "n": "'n",
+        "result": "'n + 1",
+        "value": "'n + 1",
+        "x": "'n"
+      }
+    }
+  ],
+  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)\nresult Inst: def 'call_assignment('n){'value := call 'inc('n) return 'value} def 'inc('x){return 'x + 1}\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 9)\nstates: 11  rewrites: 54 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sState[cNil | true | tested('inc), ('result ->s 'x + 1), ('x ->s 'x), ('call_assignment =>['n, 'value := call 'inc('n) return 'value]), 'inc =>['x, return 'x + 1]]\n\nSolution 2 (state 14)\nstates: 15  rewrites: 100 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sState[cNil | true | tested('call_assignment), ('n ->s 'n), ('result ->s 'n + 1), ('value ->s 'n + 1), ('x ->s 'n), ('call_assignment =>['n, 'value := call 'inc('n) return 'value]), 'inc =>['x, return 'x + 1]]\n\nNo more solutions.\nstates: 15  rewrites: 100 in 0ms cpu (0ms real) (~ rewrites/second)\nBye.\n"
+}

@@ -1,0 +1,40 @@
+{
+  "status": "ok",
+  "source_file": "examples/venus_code/parity_marker.venus",
+  "loop_depth": 3,
+  "functions": {
+    "parity_marker": [
+      "n"
+    ]
+  },
+  "summary": {
+    "functions": 1,
+    "symbolic_paths": 2,
+    "safe_paths": 2,
+    "bug_paths": 0
+  },
+  "source_code": "def 'parity_marker ('n) {\n    if (('n % 2) eq 0) then\n        return 0\n    else\n        return 1\n    fi\n}",
+  "paths": [
+    {
+      "index": 1,
+      "type": "safe",
+      "tested_func": "parity_marker",
+      "path_condition": "'n % 2 eq 0",
+      "variables": {
+        "n": "'n",
+        "result": "0"
+      }
+    },
+    {
+      "index": 2,
+      "type": "safe",
+      "tested_func": "parity_marker",
+      "path_condition": "'n % 2 neq 0",
+      "variables": {
+        "n": "'n",
+        "result": "1"
+      }
+    }
+  ],
+  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)\nresult Inst: def 'parity_marker('n){if 'n % 2 eq 0 then return 0 else return 1 fi}\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 6)\nstates: 8  rewrites: 117 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sState[cNil | 'n % 2 eq 0 | tested('parity_marker), ('n ->s 'n), ('result ->s 0), 'parity_marker =>['n, if 'n % 2 eq 0 then return 0 else return 1 fi]]\n\nSolution 2 (state 7)\nstates: 8  rewrites: 117 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sState[cNil | 'n % 2 neq 0 | tested('parity_marker), ('n ->s 'n), ('result ->s 1), 'parity_marker =>['n, if 'n % 2 eq 0 then return 0 else return 1 fi]]\n\nNo more solutions.\nstates: 8  rewrites: 117 in 0ms cpu (0ms real) (~ rewrites/second)\nBye.\n"
+}
