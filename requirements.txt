@@ -1,0 +1,10 @@
+# Venus Language — Python dependencies
+#
+# Install with:
+#   pip install -r requirements.txt
+#
+# Or using the project venv:
+#   python/.venv/bin/pip install -r requirements.txt
+
+pytest>=7.0        # test runner for generated suites
+z3-solver>=4.12    # SMT solver used for symbolic path-condition solving

@@ -16,3 +16,13 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Dissertation LaTeX (separate repo)
+Disertatie___Generator_de_teste_unitare/
+
+# Agent / coverage
+.agent/
+.coverage
+
+# Notes
+structura_disertatie.md
