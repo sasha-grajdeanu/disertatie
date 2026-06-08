@@ -23,11 +23,22 @@ def main() -> None:
         default=3,
         help="Loop unrolling depth for symbolic test generation (default: 3)",
     )
+    parser.add_argument(
+        "-p",
+        "--post",
+        type=str,
+        default=None,
+        help=(
+            "Postcondition to verify on all safe symbolic paths, "
+            "in Python syntax (e.g. \"result >= 0\"). "
+            "Use variable names as they appear in the Venus source."
+        ),
+    )
 
     args = parser.parse_args()
 
     if args.scenarios:
-        run_test_generator(args.file, args.depth)
+        run_test_generator(args.file, args.depth, args.post)
     else:
         run_venus(args.file)
 
