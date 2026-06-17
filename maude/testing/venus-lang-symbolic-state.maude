@@ -13,9 +13,7 @@ mod VENUS-SYMBOLIC-STATE is
 
     op sBug [ _ | _ ] : BExpr SymMemory -> SymState [ctor] .
 
-    op feasible : BExpr -> Bool .
-    eq feasible((false).BExpr) = (false).Bool .
-    eq feasible(BRANCH_CONDITION) = (true).Bool [owise] .
+
 
     op divZeroPC : BExpr AExpr SymMemory -> BExpr .
     eq divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY) =

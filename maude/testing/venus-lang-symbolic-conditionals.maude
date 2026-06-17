@@ -16,8 +16,7 @@ mod VENUS-SYMBOLIC-CONDITIONALS is
         sBug [ divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)
              | SYMBOLIC_MEMORY ]
         if hasDivB(CONDITION)
-        /\ DIVISOR := getDivisorB(CONDITION)
-        /\ feasible(divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)) .
+        /\ DIVISOR := getDivisorB(CONDITION) .
     crl [IfSymThen] :
         sState [ (if CONDITION then INST1 else INST2 fi) # CONTROL
                | PATH_CONDITION
@@ -26,8 +25,7 @@ mod VENUS-SYMBOLIC-CONDITIONALS is
         sState [ INST1 # CONTROL
                | thenPC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)
                | SYMBOLIC_MEMORY ]
-        if not hasDivB(CONDITION)
-        /\ feasible(thenPC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)) .
+        if not hasDivB(CONDITION) .
 
     crl [IfSymThenDivisionSafe] :
         sState [ (if CONDITION then INST1 else INST2 fi) # CONTROL
@@ -38,8 +36,7 @@ mod VENUS-SYMBOLIC-CONDITIONALS is
                | thenSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY)
                | SYMBOLIC_MEMORY ]
         if hasDivB(CONDITION)
-        /\ DIVISOR := getDivisorB(CONDITION)
-        /\ feasible(thenSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY)) .
+        /\ DIVISOR := getDivisorB(CONDITION) .
 
     crl [IfSymElse] :
         sState [ (if CONDITION then INST1 else INST2 fi) # CONTROL
@@ -49,8 +46,7 @@ mod VENUS-SYMBOLIC-CONDITIONALS is
         sState [ INST2 # CONTROL
                | elsePC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)
                | SYMBOLIC_MEMORY ]
-        if not hasDivB(CONDITION)
-        /\ feasible(elsePC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)) .
+        if not hasDivB(CONDITION) .
 
     crl [IfSymElseDivisionSafe] :
         sState [ (if CONDITION then INST1 else INST2 fi) # CONTROL
@@ -61,6 +57,5 @@ mod VENUS-SYMBOLIC-CONDITIONALS is
                | elseSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY)
                | SYMBOLIC_MEMORY ]
         if hasDivB(CONDITION)
-        /\ DIVISOR := getDivisorB(CONDITION)
-        /\ feasible(elseSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY)) .
+        /\ DIVISOR := getDivisorB(CONDITION) .
 endm

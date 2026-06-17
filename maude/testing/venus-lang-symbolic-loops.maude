@@ -31,8 +31,7 @@ mod VENUS-SYMBOLIC-LOOPS is
         sBug [ divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)
              | SYMBOLIC_MEMORY ]
         if hasDivB(CONDITION)
-        /\ DIVISOR := getDivisorB(CONDITION)
-        /\ feasible(divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)) .
+        /\ DIVISOR := getDivisorB(CONDITION) .
 
     crl [WhileSymIterate] :
         sState [ cSymWhile(CONDITION, BODY, REMAINING_DEPTH) # CONTROL
@@ -43,8 +42,7 @@ mod VENUS-SYMBOLIC-LOOPS is
                | thenPC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)
                | SYMBOLIC_MEMORY ]
         if REMAINING_DEPTH > 0
-        /\ not hasDivB(CONDITION)
-        /\ feasible(thenPC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)) .
+        /\ not hasDivB(CONDITION) .
 
     crl [WhileSymIterateDivisionSafe] :
         sState [ cSymWhile(CONDITION, BODY, REMAINING_DEPTH) # CONTROL
@@ -56,8 +54,7 @@ mod VENUS-SYMBOLIC-LOOPS is
                | SYMBOLIC_MEMORY ]
         if REMAINING_DEPTH > 0
         /\ hasDivB(CONDITION)
-        /\ DIVISOR := getDivisorB(CONDITION)
-        /\ feasible(thenSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY)) .
+        /\ DIVISOR := getDivisorB(CONDITION) .
 
     crl [WhileSymExit] :
         sState [ cSymWhile(CONDITION, BODY, REMAINING_DEPTH) # CONTROL
@@ -67,8 +64,7 @@ mod VENUS-SYMBOLIC-LOOPS is
         sState [ CONTROL
                | elsePC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)
                | SYMBOLIC_MEMORY ]
-        if not hasDivB(CONDITION)
-        /\ feasible(elsePC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)) .
+        if not hasDivB(CONDITION) .
 
     crl [WhileSymExitDivisionSafe] :
         sState [ cSymWhile(CONDITION, BODY, REMAINING_DEPTH) # CONTROL
@@ -79,8 +75,7 @@ mod VENUS-SYMBOLIC-LOOPS is
                | elseSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY)
                | SYMBOLIC_MEMORY ]
         if hasDivB(CONDITION)
-        /\ DIVISOR := getDivisorB(CONDITION)
-        /\ feasible(elseSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY)) .
+        /\ DIVISOR := getDivisorB(CONDITION) .
 
     crl [WhileSymDepthLimit] :
         sState [ cSymWhile(CONDITION, BODY, 0) # CONTROL
@@ -90,8 +85,7 @@ mod VENUS-SYMBOLIC-LOOPS is
         sState [ CONTROL
                | elsePC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)
                | SYMBOLIC_MEMORY ]
-        if not hasDivB(CONDITION)
-        /\ feasible(elsePC(PATH_CONDITION, CONDITION, SYMBOLIC_MEMORY)) .
+        if not hasDivB(CONDITION) .
 
     crl [WhileSymDepthLimitDivisionSafe] :
         sState [ cSymWhile(CONDITION, BODY, 0) # CONTROL
@@ -102,6 +96,5 @@ mod VENUS-SYMBOLIC-LOOPS is
                | elseSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY)
                | SYMBOLIC_MEMORY ]
         if hasDivB(CONDITION)
-        /\ DIVISOR := getDivisorB(CONDITION)
-        /\ feasible(elseSafePC(PATH_CONDITION, DIVISOR, CONDITION, SYMBOLIC_MEMORY)) .
+        /\ DIVISOR := getDivisorB(CONDITION) .
 endm

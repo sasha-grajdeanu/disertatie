@@ -15,8 +15,7 @@ mod VENUS-SYMBOLIC-ASSIGNMENTS is
         sBug [ divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)
              | SYMBOLIC_MEMORY ]
         if hasDiv(EXPR)
-        /\ DIVISOR := getDivisor(EXPR)
-        /\ feasible(divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)) .
+        /\ DIVISOR := getDivisor(EXPR) .
 
     crl [AssignSymDivisionSafe] :
         sState [ (PARAMETER := EXPR) # CONTROL
@@ -27,8 +26,7 @@ mod VENUS-SYMBOLIC-ASSIGNMENTS is
                | divSafePC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)
                | updateSym(SYMBOLIC_MEMORY, PARAMETER, evalSymA(EXPR, SYMBOLIC_MEMORY)) ]
         if hasDiv(EXPR)
-        /\ DIVISOR := getDivisor(EXPR)
-        /\ feasible(divSafePC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)) .
+        /\ DIVISOR := getDivisor(EXPR) .
 
     crl [AssignSym] :
         sState [ (PARAMETER := EXPR) # CONTROL
@@ -48,8 +46,7 @@ mod VENUS-SYMBOLIC-ASSIGNMENTS is
         sBug [ divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)
              | SYMBOLIC_MEMORY ]
         if hasDiv(EXPR)
-        /\ DIVISOR := getDivisor(EXPR)
-        /\ feasible(divZeroPC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)) .
+        /\ DIVISOR := getDivisor(EXPR) .
 
     crl [ReturnSymDivisionSafe] :
         sState [ (return EXPR) # CONTROL # cEndCall(CONTROL_AFTER)
@@ -60,8 +57,7 @@ mod VENUS-SYMBOLIC-ASSIGNMENTS is
                | divSafePC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)
                | updateSym(SYMBOLIC_MEMORY, 'result, evalSymA(EXPR, SYMBOLIC_MEMORY)) ]
         if hasDiv(EXPR)
-        /\ DIVISOR := getDivisor(EXPR)
-        /\ feasible(divSafePC(PATH_CONDITION, DIVISOR, SYMBOLIC_MEMORY)) .
+        /\ DIVISOR := getDivisor(EXPR) .
 
     crl [ReturnSym] :
         sState [ (return EXPR) # CONTROL # cEndCall(CONTROL_AFTER)
