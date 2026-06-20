@@ -1,0 +1,27 @@
+{
+  "status": "ok",
+  "source_file": "examples/venus_code/run.venus",
+  "loop_depth": 3,
+  "functions": {},
+  "summary": {
+    "functions": 0,
+    "symbolic_paths": 1,
+    "safe_paths": 1,
+    "bug_paths": 0
+  },
+  "source_code": "'x := 5\n'y := 'x + 7\nif ('y lte 15) then\n    'z := 23\nfi",
+  "paths": [
+    {
+      "index": 1,
+      "type": "safe",
+      "tested_func": "Unknown",
+      "path_condition": "true",
+      "variables": {
+        "x": "5",
+        "y": "12",
+        "z": "23"
+      }
+    }
+  ],
+  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 3 in 0ms cpu (0ms real) (3039 rewrites/second)\nresult Inst: 'x := 5 'y := 'x + 7 if 'y lte 15 then 'z := 23 else skip fi\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 9)\nstates: 11  rewrites: 120 in 0ms cpu (0ms real) (121089 rewrites/second)\nS:SymState --> sState[cSymTest | true | ('x ->s 5), ('y ->s 12), 'z ->s 23]\n\nSolution 2 (state 10)\nstates: 11  rewrites: 120 in 0ms cpu (0ms real) (121089 rewrites/second)\nS:SymState --> sState[cSymTest | false | ('x ->s 5), 'y ->s 12]\n\nNo more solutions.\nstates: 11  rewrites: 120 in 0ms cpu (0ms real) (121089 rewrites/second)\nBye.\n"
+}

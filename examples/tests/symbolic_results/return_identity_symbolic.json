@@ -26,5 +26,5 @@
       }
     }
   ],
-  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)\nresult Inst: def 'return_identity('x){return 'x}\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 4)\nstates: 5  rewrites: 21 in 0ms cpu (0ms real) (21363 rewrites/second)\nS:SymState --> sState[cNil | true | tested('return_identity), ('result ->s 'x), ('x ->s 'x), 'return_identity =>['x, return 'x]]\n\nNo more solutions.\nstates: 5  rewrites: 21 in 0ms cpu (0ms real) (21363 rewrites/second)\nBye.\n"
+  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)\nresult Inst: def 'return_identity('x){return 'x}\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 4)\nstates: 5  rewrites: 21 in 0ms cpu (0ms real) (22483 rewrites/second)\nS:SymState --> sState[cNil | true | tested('return_identity), ('result ->s 'x), ('x ->s 'x), 'return_identity =>['x, return 'x]]\n\nNo more solutions.\nstates: 5  rewrites: 21 in 0ms cpu (0ms real) (22483 rewrites/second)\nBye.\n"
 }

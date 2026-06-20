@@ -8,7 +8,6 @@ mod VENUS-DESUGARING is
 
     eq def Func ( ) { Body } = def Func ( emptyList ) { Body } .
     eq call Func ( ) = call Func ( emptyList ) .
-    eq Iter := call Func ( ) = Iter := call Func ( emptyList ) .
 
     eq for Iter in range ( Start , Stop ) do Body od =
         (Iter := Start)
