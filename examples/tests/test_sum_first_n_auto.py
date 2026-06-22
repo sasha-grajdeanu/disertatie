@@ -1,6 +1,6 @@
 import pytest
 
-from examples.python_code.countdown_sum import countdown_sum
+from examples.python_code.sum_first_n import sum_first_n
 
 
 @pytest.mark.parametrize(
@@ -12,5 +12,5 @@ from examples.python_code.countdown_sum import countdown_sum
         pytest.param(3, 3, id="(0 lt 'n) and (1 lt 'n) and (2 lt 'n) and (3 gte 'n)"),
     ],
 )
-def test_countdown_sum_returns_expected_result(n, expected):
-    assert countdown_sum(n) == expected
+def test_sum_first_n_returns_expected_result(n, expected):
+    assert sum_first_n(n) == expected

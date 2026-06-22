@@ -1,0 +1,3 @@
+def average_speed(distance, start, finish):
+    elapsed = finish - start
+    return distance // elapsed

@@ -1,4 +1,4 @@
-def risky_running_average(n, total, count):
+def complicated_function(n, total, count):
     i = 0
     acc = total
 

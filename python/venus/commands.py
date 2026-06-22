@@ -67,8 +67,9 @@ def _write_symbolic_json_report(
 ) -> str:
     json_path = _symbolic_json_path(file_path)
 
-    safe_count = sum(1 for sol in solutions if sol.get("type") == "safe")
-    bug_count  = sum(1 for sol in solutions if sol.get("type") == "bug")
+    safe_count = sum(1 for sol in solutions if sol.get("type") == "safe" and sol.get("feasible", True))
+    bug_count  = sum(1 for sol in solutions if sol.get("type") == "bug" and sol.get("feasible", True))
+    unreachable_count = sum(1 for sol in solutions if not sol.get("feasible", True))
 
     pc_map: Dict[int, Dict[str, Any]] = {}
     if pc_results:
@@ -84,10 +85,16 @@ def _write_symbolic_json_report(
             "path_condition": sol.get("pc"),
             "variables": sol.get("variables", {}),
         }
+        if not sol.get("feasible", True):
+            path_entry["feasible"] = False
         if i in pc_map:
             check = pc_map[i]
-            path_entry["postcondition_holds"] = check["holds"]
-            path_entry["counterexample"] = check.get("counterexample")
+            if "error" in check:
+                path_entry["postcondition_error"] = check["error"]
+                path_entry["postcondition_holds"] = False
+            else:
+                path_entry["postcondition_holds"] = check["holds"]
+                path_entry["counterexample"] = check.get("counterexample")
         paths_json.append(path_entry)
 
     report: Dict[str, Any] = {
@@ -100,6 +107,7 @@ def _write_symbolic_json_report(
             "symbolic_paths": len(solutions),
             "safe_paths": safe_count,
             "bug_paths": bug_count,
+            "unreachable_paths": unreachable_count,
         },
         "source_code": code,
         "paths": paths_json,
@@ -108,20 +116,29 @@ def _write_symbolic_json_report(
 
     if postcondition is not None:
         all_checks = pc_results or []
-        violations = sum(1 for check in all_checks if not check["holds"])
-        checked = len(all_checks)
-        report["postcondition"] = postcondition
-        report["postcondition_summary"] = {
-            "checked_paths": checked,
-            "passing": checked - violations,
-            "violations": violations,
-        }
+        errors = [check["error"] for check in all_checks if "error" in check]
+        if errors:
+            report["postcondition_summary"] = {
+                "error": errors[0],
+                "checked_paths": 0,
+                "passing": 0,
+                "violations": 0,
+            }
+        else:
+            checked_checks = [check for check in all_checks if not check.get("unreachable")]
+            violations = sum(1 for check in checked_checks if not check["holds"])
+            checked = len(checked_checks)
+            report["postcondition"] = postcondition
+            report["postcondition_summary"] = {
+                "checked_paths": checked,
+                "passing": checked - violations,
+                "violations": violations,
+            }
 
     with open(json_path, "w") as f:
         json.dump(report, f, indent=2)
         f.write("\n")
 
-    print(f"Stored Maude JSON result: {json_path}")
     return json_path
 
 
@@ -159,25 +176,18 @@ def run_test_generator(
 
 
     params: List[str] = next(iter(funcs_info.values())) if funcs_info else []
-    feasible_solutions: List[Dict[str, Any]] = []
     dead_code_paths: List[Dict[str, Any]] = []
 
     for sol in solutions:
         concrete_inputs = solve_path_condition(sol["pc"], params)
         if concrete_inputs is not None:
             sol["_concrete_inputs"] = concrete_inputs
-            feasible_solutions.append(sol)
+            sol["feasible"] = True
         else:
+            sol["feasible"] = False
             dead_code_paths.append(sol)
 
-    if dead_code_paths:
-        print(f"\nDead code detected - {len(dead_code_paths)} unreachable path(s):")
-        for i, p in enumerate(dead_code_paths, 1):
-            pc_flat = p["pc"].replace("'", "").strip()
-            print(f"   [{i}] unsatisfiable PC: {pc_flat}")
-        print("   No tests will be generated for these paths.\n")
 
-    solutions = feasible_solutions
 
 
     pc_results: Optional[List[Dict[str, Any]]] = None
@@ -185,6 +195,15 @@ def run_test_generator(
         pc_results = []
         for i, sol in enumerate(solutions, start=1):
             if sol.get("type") != "safe":
+                continue
+            if not sol.get("feasible", True):
+                pc_results.append({
+                    "solution_index": i,
+                    "holds": True,
+                    "counterexample": None,
+                    "substituted_post": postcondition,
+                    "unreachable": True,
+                })
                 continue
             check_result = check_postcondition_on_path(
                 sol["pc"],
@@ -207,7 +226,8 @@ def run_test_generator(
             pc_results=pc_results,
         )
 
-    _write_symbolic_json_report(
+    json_path = _write_symbolic_json_report(
         file_path, depth, funcs_info, code, output, solutions,
         postcondition=postcondition, pc_results=pc_results,
     )
+    print(f"  Symbolic JSON:  {json_path}")

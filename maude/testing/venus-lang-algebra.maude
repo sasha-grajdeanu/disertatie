@@ -14,18 +14,10 @@ mod VENUS-ALGEBRA is
     ops ltC lteC gtC gteC eqC neqC : Var Int -> Cmp .
     vars C C1 C2 : MaybeCmp .
 
-    ceq (N1 lt N2) = true if N1 < N2 .
-    ceq (N1 lt N2) = false if N1 >= N2 .
-    ceq (N1 gt N2) = true if N1 > N2 .
-    ceq (N1 gt N2) = false if N1 <= N2 .
-    ceq (N1 eq N2) = true if N1 == N2 .
-    ceq (N1 eq N2) = false if N1 =/= N2 .
-    ceq (N1 lte N2) = true if N1 <= N2 .
-    ceq (N1 lte N2) = false if N1 > N2 .
-    ceq (N1 gte N2) = true if N1 >= N2 .
-    ceq (N1 gte N2) = false if N1 < N2 .
-    ceq (N1 neq N2) = true if N1 =/= N2 .
-    ceq (N1 neq N2) = false if N1 == N2 .
+    --- Concrete integer comparisons (e.g. 3 gt 5) are NOT simplified
+    --- here so that symbolic path conditions remain readable.
+    --- The concrete semantics has its own evaluation rules in
+    --- venus-lang-boolean.maude (GtEvalTrue, LtEvalFalse, etc.).
 
     eq (X lt X) = false .
     eq (X gt X) = false .

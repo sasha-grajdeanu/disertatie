@@ -1,4 +1,4 @@
-def 'countdown_sum ('n) {
+def 'sum_first_n ('n) {
     'total := 0
     'i := 0
     while ('i lt 'n) do

@@ -154,12 +154,44 @@ def check_postcondition_on_path(
     params: List[str],
     post_str: str,
 ) -> Dict[str, Any]:
+    # 1. Clean the postcondition string and normalize boolean literals
+    post_str = post_str.strip()
+    post_str = re.sub(r"\btrue\b", "True", post_str, flags=re.IGNORECASE)
+    post_str = re.sub(r"\bfalse\b", "False", post_str, flags=re.IGNORECASE)
+
+    # 2. Syntax validation
+    try:
+        tree = ast.parse(post_str, mode="eval")
+    except Exception as e:
+        return {
+            "holds": False,
+            "error": f"Syntax error: {e}",
+            "counterexample": None,
+            "substituted_post": post_str,
+        }
+
+    # 3. Undefined variables validation
+    import builtins
+    names = {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
+    allowed_names = set(params) | set(final_vars.keys()) | set(dir(builtins))
+    undefined = sorted(list(names - allowed_names))
+    if undefined:
+        vars_str = ", ".join(undefined)
+        return {
+            "holds": False,
+            "error": f"Undefined variable(s): {vars_str}",
+            "counterexample": None,
+            "substituted_post": post_str,
+        }
+
     z3_vars = {param: _z3.Int(param) for param in params}
 
     pc_constraint = None
     if pc_str.strip() not in ("true", ""):
         try:
             pc_constraint = _to_z3(_maude_to_python(pc_str), z3_vars)
+            if isinstance(pc_constraint, bool):
+                pc_constraint = _z3.BoolVal(pc_constraint)
         except Exception:
             return {"holds": True, "counterexample": None, "substituted_post": post_str}
 
@@ -167,8 +199,17 @@ def check_postcondition_on_path(
 
     try:
         post_constraint = _to_z3(substituted_post, z3_vars)
-    except Exception:
-        return {"holds": True, "counterexample": None, "substituted_post": substituted_post}
+        if isinstance(post_constraint, bool):
+            if post_constraint:
+                return {"holds": True, "counterexample": None, "substituted_post": substituted_post}
+            post_constraint = _z3.BoolVal(False)
+    except Exception as e:
+        return {
+            "holds": False,
+            "error": f"Evaluation error: {e}",
+            "counterexample": None,
+            "substituted_post": substituted_post,
+        }
 
     solver = _z3.Solver()
     solver.set("timeout", 5000)
@@ -185,3 +226,4 @@ def check_postcondition_on_path(
         "counterexample": counterexample,
         "substituted_post": substituted_post,
     }
+

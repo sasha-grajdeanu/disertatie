@@ -204,12 +204,17 @@ def format_postcondition_violation_tests(
     if len(violations) == 1:
         check = violations[0]
         counterexample: Dict[str, int] = check["counterexample"]
-        inputs = [counterexample.get(p, 0) for p in params]
-        call = format_function_call(func_name, [repr(v) for v in inputs])
+        arg_names = argument_names(params)
+        param_assigns = "\n".join(
+            f"    {name} = {counterexample.get(p, 0)}"
+            for name, p in zip(arg_names, params)
+        )
+        call = format_function_call(func_name, arg_names)
         docstring = f'    """Counterexample violating postcondition: {safe_post}"""'
         return (
             f"\n\ndef test_{test_name}_postcondition_violation():\n"
             f"{docstring}\n"
+            f"{param_assigns}\n"
             f"    result = {call}\n"
             f"    assert {postcondition}\n"
         )
@@ -325,9 +330,7 @@ def test_{test_name}_has_concrete_scenarios():
         1 for check in (pc_results or [])
         if not check["holds"] and check.get("counterexample")
     )
-    print(
-        f"Generated Pytest suite: {pytest_path} "
-        f"({len(safe_cases)} safe, {len(bug_cases)} bug, {omitted_paths} omitted"
-        + (f", {violation_count} postcondition violation(s)" if violation_count else "")
-        + ")"
-    )
+    parts = f"{len(safe_cases)} safe, {len(bug_cases)} bug, {omitted_paths} omitted"
+    if violation_count:
+        parts += f", {violation_count} postcondition violation(s)"
+    print(f"  Pytest suite:   {pytest_path} ({parts})")

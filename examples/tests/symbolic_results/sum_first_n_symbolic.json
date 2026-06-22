@@ -1,0 +1,83 @@
+{
+  "status": "ok",
+  "source_file": "examples/venus_code/sum_first_n.venus",
+  "loop_depth": 3,
+  "functions": {
+    "sum_first_n": [
+      "n"
+    ]
+  },
+  "summary": {
+    "functions": 1,
+    "symbolic_paths": 4,
+    "safe_paths": 4,
+    "bug_paths": 0,
+    "unreachable_paths": 0
+  },
+  "source_code": "def 'sum_first_n ('n) {\n    'total := 0\n    'i := 0\n    while ('i lt 'n) do\n        'total := 'total + 'i\n        'i := 'i + 1\n    od\n    return 'total\n}",
+  "paths": [
+    {
+      "index": 1,
+      "type": "safe",
+      "tested_func": "sum_first_n",
+      "path_condition": "0 gte 'n",
+      "variables": {
+        "i": "0",
+        "n": "'n",
+        "result": "0",
+        "total": "0"
+      },
+      "postcondition_holds": true,
+      "counterexample": null
+    },
+    {
+      "index": 2,
+      "type": "safe",
+      "tested_func": "sum_first_n",
+      "path_condition": "(0 lt 'n) and (1 gte 'n)",
+      "variables": {
+        "i": "1",
+        "n": "'n",
+        "result": "0",
+        "total": "0"
+      },
+      "postcondition_holds": true,
+      "counterexample": null
+    },
+    {
+      "index": 3,
+      "type": "safe",
+      "tested_func": "sum_first_n",
+      "path_condition": "(0 lt 'n) and (1 lt 'n) and (2 gte 'n)",
+      "variables": {
+        "i": "2",
+        "n": "'n",
+        "result": "1",
+        "total": "1"
+      },
+      "postcondition_holds": true,
+      "counterexample": null
+    },
+    {
+      "index": 4,
+      "type": "safe",
+      "tested_func": "sum_first_n",
+      "path_condition": "(0 lt 'n) and (1 lt 'n) and (2 lt 'n) and (3 gte 'n)",
+      "variables": {
+        "i": "3",
+        "n": "'n",
+        "result": "3",
+        "total": "3"
+      },
+      "postcondition_holds": true,
+      "counterexample": null
+    }
+  ],
+  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)\nresult Inst: def 'sum_first_n('n){'total := 0 'i := 0 while 'i lt 'n do 'total := 'i + 'total 'i := 'i + 1 od return 'total}\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 21)\nstates: 23  rewrites: 173 in 0ms cpu (0ms real) (180584 rewrites/second)\nS:SymState --> sState[cNil | 0 gte 'n | tested('sum_first_n), ('i ->s 0), ('n ->s 'n), ('result ->s 0), ('total ->s 0), 'sum_first_n =>['n, 'total := 0 'i := 0 while 'i lt 'n do 'total := 'i + 'total 'i := 'i + 1 od return 'total]]\n\nSolution 2 (state 27)\nstates: 29  rewrites: 310 in 0ms cpu (0ms real) (323590 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (1 gte 'n) | tested('sum_first_n), ('i ->s 1), ('n ->s 'n), ('result ->s 0), ('total ->s 0), 'sum_first_n =>['n, 'total := 0 'i := 0 while 'i lt 'n do 'total := 'i + 'total 'i := 'i + 1 od return 'total]]\n\nSolution 3 (state 33)\nstates: 35  rewrites: 466 in 0ms cpu (1ms real) (486430 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (1 lt 'n) and (2 gte 'n) | tested('sum_first_n), ('i ->s 2), ('n ->s 'n), ('result ->s 1), ('total ->s 1), 'sum_first_n =>['n, 'total := 0 'i := 0 while 'i lt 'n do 'total := 'i + 'total 'i := 'i + 1 od return 'total]]\n\nSolution 4 (state 37)\nstates: 38  rewrites: 612 in 0ms cpu (1ms real) (638830 rewrites/second)\nS:SymState --> sState[cNil | (0 lt 'n) and (1 lt 'n) and (2 lt 'n) and (3 gte 'n) | tested('sum_first_n), ('i ->s 3), ('n ->s 'n), ('result ->s 3), ('total ->s 3), 'sum_first_n =>['n, 'total := 0 'i := 0 while 'i lt 'n do 'total := 'i + 'total 'i := 'i + 1 od return 'total]]\n\nNo more solutions.\nstates: 38  rewrites: 612 in 0ms cpu (1ms real) (638830 rewrites/second)\nBye.\n",
+  "postcondition": "result >= 0",
+  "postcondition_summary": {
+    "checked_paths": 4,
+    "passing": 4,
+    "violations": 0
+  }
+}

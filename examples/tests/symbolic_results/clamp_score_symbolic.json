@@ -11,7 +11,8 @@
     "functions": 1,
     "symbolic_paths": 3,
     "safe_paths": 3,
-    "bug_paths": 0
+    "bug_paths": 0,
+    "unreachable_paths": 0
   },
   "source_code": "def 'clamp_score ('score) {\n    if ('score lt 0) then\n        return 0\n    else\n        if ('score gt 100) then\n            return 100\n        else\n            return 'score\n        fi\n    fi\n}",
   "paths": [

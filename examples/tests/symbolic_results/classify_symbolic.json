@@ -1,0 +1,56 @@
+{
+  "status": "ok",
+  "source_file": "examples/venus_code/classify.venus",
+  "loop_depth": 3,
+  "functions": {
+    "classify": [
+      "x",
+      "y"
+    ]
+  },
+  "summary": {
+    "functions": 1,
+    "symbolic_paths": 3,
+    "safe_paths": 2,
+    "bug_paths": 0,
+    "unreachable_paths": 1
+  },
+  "source_code": "def 'classify ('x, 'y) {\n    if ('x + 'y gt 10) then\n        if ('x + 'y lt 5) then\n            return -1\n        else\n            return 1\n        fi\n    else\n        return 0\n    fi\n}",
+  "paths": [
+    {
+      "index": 1,
+      "type": "safe",
+      "tested_func": "classify",
+      "path_condition": "'x + 'y lte 10",
+      "variables": {
+        "result": "0",
+        "x": "'x",
+        "y": "'y"
+      }
+    },
+    {
+      "index": 2,
+      "type": "safe",
+      "tested_func": "classify",
+      "path_condition": "('x + 'y gt 10) and ('x + 'y lt 5)",
+      "variables": {
+        "result": "-1",
+        "x": "'x",
+        "y": "'y"
+      },
+      "feasible": false
+    },
+    {
+      "index": 3,
+      "type": "safe",
+      "tested_func": "classify",
+      "path_condition": "('x + 'y gt 10) and ('x + 'y gte 5)",
+      "variables": {
+        "result": "1",
+        "x": "'x",
+        "y": "'y"
+      }
+    }
+  ],
+  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)\nresult Inst: def 'classify('x, 'y){if 'x + 'y gt 10 then if 'x + 'y lt 5 then return -1 else return 1 fi else return 0 fi}\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 8)\nstates: 11  rewrites: 226 in 0ms cpu (0ms real) (228282 rewrites/second)\nS:SymState --> sState[cNil | 'x + 'y lte 10 | tested('classify), ('result ->s 0), ('x ->s 'x), ('y ->s 'y), 'classify =>['x, 'y, if 'x + 'y gt 10 then if 'x + 'y lt 5 then return -1 else return 1 fi else return 0 fi]]\n\nSolution 2 (state 9)\nstates: 11  rewrites: 226 in 0ms cpu (0ms real) (228282 rewrites/second)\nS:SymState --> sState[cNil | ('x + 'y gt 10) and ('x + 'y lt 5) | tested('classify), ('result ->s -1), ('x ->s 'x), ('y ->s 'y), 'classify =>['x, 'y, if 'x + 'y gt 10 then if 'x + 'y lt 5 then return -1 else return 1 fi else return 0 fi]]\n\nSolution 3 (state 10)\nstates: 11  rewrites: 226 in 0ms cpu (0ms real) (228282 rewrites/second)\nS:SymState --> sState[cNil | ('x + 'y gt 10) and ('x + 'y gte 5) | tested('classify), ('result ->s 1), ('x ->s 'x), ('y ->s 'y), 'classify =>['x, 'y, if 'x + 'y gt 10 then if 'x + 'y lt 5 then return -1 else return 1 fi else return 0 fi]]\n\nNo more solutions.\nstates: 11  rewrites: 226 in 0ms cpu (0ms real) (228282 rewrites/second)\nBye.\n"
+}

@@ -85,6 +85,19 @@ def format_runner_output(parsed: Dict[str, Any]) -> None:
 
 
 
+def _format_variables(variables: Dict[str, str], params: List[str]) -> str:
+    skip = {"result"} | {p.replace("'", "") for p in params}
+    items = []
+    for var, val in sorted(variables.items()):
+        if var in skip:
+            continue
+        clean_val = val.replace("'", "")
+        items.append(f"{var}={clean_val}")
+    if not items:
+        return ""
+    return "  [" + ", ".join(items) + "]"
+
+
 def format_symbolic_results(
     funcs_info: Dict[str, List[str]],
     solutions: List[Dict[str, Any]],
@@ -103,45 +116,122 @@ def format_symbolic_results(
         sol_with_index = {**sol, "_solution_index": i}
         by_func.setdefault(func_name, []).append(sol_with_index)
 
+    # ── Global summary counts ──
+    total = len(solutions)
+    total_safe = sum(1 for s in solutions if s["type"] == "safe" and s.get("feasible", True))
+    total_bugs = sum(1 for s in solutions if s["type"] == "bug" and s.get("feasible", True))
+    total_unreachable = sum(1 for s in solutions if not s.get("feasible", True))
+
+    # ── Header ──
+    print()
+    print("=" * LINE_WIDTH)
+    print("  SYMBOLIC ANALYSIS RESULTS")
+    print("=" * LINE_WIDTH)
+
+    # Collect param names for variable display
+    all_params: List[str] = []
+    if funcs_info:
+        all_params = next(iter(funcs_info.values()), [])
+
     for func_name, func_solutions in by_func.items():
         safe_paths = [s for s in func_solutions if s["type"] == "safe"]
         bug_paths  = [s for s in func_solutions if s["type"] == "bug"]
 
-        print(f"\n{func_name}  ({len(safe_paths)} safe, {len(bug_paths)} bug)")
-        print("-" * LINE_WIDTH)
+        safe_feasible = [s for s in safe_paths if s.get("feasible", True)]
+        bug_feasible = [s for s in bug_paths if s.get("feasible", True)]
 
-        for idx, path in enumerate(safe_paths, 1):
-            sol_idx = path["_solution_index"]
-            flat_cond = _flatten_condition(path["pc"])
-            result = _get_result_value(path["variables"])
+        safe_unreachable = [s for s in safe_paths if not s.get("feasible", True)]
+        bug_unreachable = [s for s in bug_paths if not s.get("feasible", True)]
 
-            post_suffix = ""
-            if postcondition is not None and sol_idx in pc_map:
-                check = pc_map[sol_idx]
-                if check["holds"]:
-                    post_suffix = "  HOLDS"
-                else:
-                    cx = check.get("counterexample") or {}
-                    cx_str = ", ".join(f"{k}={v}" for k, v in cx.items())
-                    post_suffix = f"  VIOLATED: {cx_str}"
+        # ── Function sub-header ──
+        print(f"\n  Function: {func_name}")
+        print("  " + "-" * (LINE_WIDTH - 2))
 
-            suffix = f"  =>  result={result}{post_suffix}"
-            _print_path_line(f"  path {idx}  if ", flat_cond, suffix)
+        # Map original indices
+        safe_indices = {id(s): idx for idx, s in enumerate(safe_paths, 1)}
+        bug_indices = {id(s): idx for idx, s in enumerate(bug_paths, 1)}
 
-        for idx, path in enumerate(bug_paths, 1):
-            flat_cond = _flatten_condition(path["pc"])
-            _print_path_line(f"  threat {idx}  if ", flat_cond, "  =>  division by zero")
+        # ── Safe paths ──
+        if safe_feasible:
+            print()
+            for path in safe_feasible:
+                idx = safe_indices[id(path)]
+                sol_idx = path["_solution_index"]
+                flat_cond = _flatten_condition(path["pc"])
+                result = _get_result_value(path["variables"])
 
-    total = len(solutions)
-    total_bugs = sum(1 for s in solutions if s["type"] == "bug")
-    print(f"\n{total} path(s): {total - total_bugs} safe, {total_bugs} bug")
+                post_suffix = ""
+                if postcondition is not None and sol_idx in pc_map:
+                    check = pc_map[sol_idx]
+                    if "error" in check:
+                        post_suffix = f"  ERROR: {check['error']}"
+                    elif check["holds"]:
+                        post_suffix = "  HOLDS"
+                    else:
+                        cx = check.get("counterexample") or {}
+                        cx_str = ", ".join(f"{k}={v}" for k, v in cx.items())
+                        post_suffix = f"  VIOLATED: {cx_str}"
 
+                var_info = _format_variables(path["variables"], all_params)
+                suffix = f"  =>  result={result}{post_suffix}"
+                _print_path_line(f"    path {idx}  if ", flat_cond, suffix)
+                if var_info:
+                    print(f"            {var_info}")
+
+        # ── Bug paths ──
+        if bug_feasible:
+            print()
+            for path in bug_feasible:
+                idx = bug_indices[id(path)]
+                flat_cond = _flatten_condition(path["pc"])
+                _print_path_line(f"    threat {idx}  if ", flat_cond, "  =>  division by zero")
+
+        # ── Unreachable (dead code) paths ──
+        if safe_unreachable or bug_unreachable:
+            print()
+            print("    unreachable (dead code):")
+            for path in safe_unreachable:
+                idx = safe_indices[id(path)]
+                flat_cond = _flatten_condition(path["pc"])
+                result = _get_result_value(path["variables"])
+                var_info = _format_variables(path["variables"], all_params)
+                _print_path_line(f"      path {idx}  if ", flat_cond, f"  =>  result={result}")
+                if var_info:
+                    print(f"              {var_info}")
+            for path in bug_unreachable:
+                idx = bug_indices[id(path)]
+                flat_cond = _flatten_condition(path["pc"])
+                _print_path_line(f"      threat {idx}  if ", flat_cond, "  =>  division by zero")
+
+    # ── Summary ──
+    print()
+    print("-" * LINE_WIDTH)
+
+    parts = [f"{total_safe} safe", f"{total_bugs} bug"]
+    if total_unreachable:
+        parts.append(f"{total_unreachable} unreachable")
+    print(f"  {total} path(s): {', '.join(parts)}")
+
+    # ── Postcondition ──
     if postcondition is not None and pc_results is not None:
-        violations = sum(1 for r in pc_results if not r["holds"])
-        checked = len(pc_results)
-        if violations == 0:
-            print(f"post [{postcondition}]: holds on all {checked} path(s)")
+        errors = [r["error"] for r in pc_results if "error" in r]
+        if errors:
+            print(f"  postcondition [{postcondition}]: ERROR - {errors[0]}")
         else:
-            print(f"post [{postcondition}]: violated on {violations}/{checked} path(s)")
+            checked_results = [r for r in pc_results if not r.get("unreachable")]
+            violations = sum(1 for r in checked_results if not r["holds"])
+            checked = len(checked_results)
+            if checked == 0:
+                print(f"  postcondition [{postcondition}]: holds vacuously (all paths unreachable)")
+            elif violations == 0:
+                print(f"  postcondition [{postcondition}]: holds on all {checked} path(s)")
+            else:
+                print(f"  postcondition [{postcondition}]: violated on {violations}/{checked} path(s)")
 
+    if total > 0 and total_safe == 0 and total_bugs == 0:
+        print()
+        print("  hint: all paths are unreachable — try increasing loop")
+        print("        depth with -d (e.g. -d 5, -d 10)")
+
+    print("=" * LINE_WIDTH)
     print()

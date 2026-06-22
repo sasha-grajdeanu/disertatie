@@ -1,6 +1,6 @@
 import pytest
 
-from unreachable_branch import classify
+from examples.python_code.classify import classify
 
 
 @pytest.mark.parametrize(
