@@ -8,16 +8,15 @@ mod VENUS-ALGEBRA is
     vars B B1 B2 B3 B4 BE BE1 BE2 : BExpr .
     vars N K N1 N2 N3 : Int .
 
-    sorts Cmp MaybeCmp .
-    subsort Cmp < MaybeCmp .
-    op noCmp : -> MaybeCmp .
-    ops ltC lteC gtC gteC eqC neqC : Var Int -> Cmp .
-    vars C C1 C2 : MaybeCmp .
-
     --- Concrete integer comparisons (e.g. 3 gt 5) are NOT simplified
     --- here so that symbolic path conditions remain readable.
     --- The concrete semantics has its own evaluation rules in
     --- venus-lang-boolean.maude (GtEvalTrue, LtEvalFalse, etc.).
+    ---
+    --- Contradictory conjunctions (e.g. score lt 60 and score gte 80)
+    --- are likewise NOT collapsed to false here: the readable path
+    --- condition is preserved and Z3 decides feasibility downstream,
+    --- marking the path as unreachable (dead code).
 
     eq (X lt X) = false .
     eq (X gt X) = false .
@@ -67,49 +66,6 @@ mod VENUS-ALGEBRA is
     eq (BE or BE) = BE .
     eq (BE or not(BE)) = true .
     eq (not(BE) or BE) = true .
-
-    op canonCmp : BExpr -> MaybeCmp .
-    eq canonCmp(X lt N) = ltC(X, N) .
-    eq canonCmp(X lte N) = lteC(X, N) .
-    eq canonCmp(X gt N) = gtC(X, N) .
-    eq canonCmp(X gte N) = gteC(X, N) .
-    eq canonCmp(X eq N) = eqC(X, N) .
-    eq canonCmp(X neq N) = neqC(X, N) .
-    eq canonCmp(N lt X) = gtC(X, N) .
-    eq canonCmp(N lte X) = gteC(X, N) .
-    eq canonCmp(N gt X) = ltC(X, N) .
-    eq canonCmp(N gte X) = lteC(X, N) .
-    eq canonCmp(N eq X) = eqC(X, N) .
-    eq canonCmp(N neq X) = neqC(X, N) .
-    eq canonCmp(BE) = noCmp [owise] .
-
-    op cmpConflict : MaybeCmp MaybeCmp -> Bool [comm] .
-    eq cmpConflict(noCmp, C) = false .
-    ceq cmpConflict(eqC(X, N1), eqC(X, N2)) = true if N1 =/= N2 .
-    eq cmpConflict(eqC(X, N), neqC(X, N)) = true .
-    ceq cmpConflict(eqC(X, N1), ltC(X, N2)) = true if N1 >= N2 .
-    ceq cmpConflict(eqC(X, N1), lteC(X, N2)) = true if N1 > N2 .
-    ceq cmpConflict(eqC(X, N1), gtC(X, N2)) = true if N1 <= N2 .
-    ceq cmpConflict(eqC(X, N1), gteC(X, N2)) = true if N1 < N2 .
-    ceq cmpConflict(ltC(X, N1), gteC(X, N2)) = true if N2 >= N1 .
-    ceq cmpConflict(ltC(X, N1), gtC(X, N2)) = true if N2 >= _-_(N1, 1) .
-    ceq cmpConflict(lteC(X, N1), gtC(X, N2)) = true if N2 >= N1 .
-    ceq cmpConflict(lteC(X, N1), gteC(X, N2)) = true if N2 > N1 .
-    eq cmpConflict(C1, C2) = false [owise] .
-
-    op conflict : BExpr BExpr -> Bool .
-    eq conflict((B1 and B2), (B3 or B4)) =
-        (conflict(B1, B3) or conflict(B2, B3))
-        and (conflict(B1, B4) or conflict(B2, B4)) .
-    eq conflict((B3 or B4), (B1 and B2)) =
-        (conflict(B1, B3) or conflict(B2, B3))
-        and (conflict(B1, B4) or conflict(B2, B4)) .
-    eq conflict((B1 and B2), B3) = conflict(B1, B3) or conflict(B2, B3) .
-    eq conflict(B3, (B1 and B2)) = conflict(B1, B3) or conflict(B2, B3) .
-    eq conflict((B1 or B2), B3) = conflict(B1, B3) and conflict(B2, B3) .
-    eq conflict(B3, (B1 or B2)) = conflict(B1, B3) and conflict(B2, B3) .
-    eq conflict(B1, B2) = cmpConflict(canonCmp(B1), canonCmp(B2)) [owise] .
-    ceq (BE1 and BE2) = false if conflict(BE1, BE2) .
 
     eq AE + 0 = AE .
     eq 0 + AE = AE .

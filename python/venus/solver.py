@@ -98,41 +98,50 @@ def _substitute_symbolic_vars(postcondition: str, final_vars: Dict[str, str]) ->
     return postcondition
 
 
-def solve_path_condition(pc_str: str, params: List[str]) -> Optional[List[int]]:
+def solve_path_condition(pc_str: str, params: List[str]) -> Dict[str, Any]:
     if pc_str.strip() in ("true", ""):
-        return [0] * len(params)
+        return {"status": "sat", "values": [0] * len(params)}
 
     z3_vars = {param: _z3.Int(param) for param in params}
     try:
         constraint = _to_z3(_maude_to_python(pc_str), z3_vars)
     except Exception:
-        return None
+        return {"status": "unknown", "values": None}
 
     solver = _z3.Solver()
     solver.set("timeout", 5000)
     solver.add(constraint)
 
-    if solver.check() != _z3.sat:
-        return None
-    return _model_values(solver.model(), z3_vars, params)
+    result = solver.check()
+    if result == _z3.sat:
+        return {"status": "sat", "values": _model_values(solver.model(), z3_vars, params)}
+    if result == _z3.unsat:
+        return {"status": "unsat", "values": None}
+    return {"status": "unknown", "values": None}
 
 
-def is_path_feasible(pc_str: str, params: List[str]) -> bool:
+def is_path_feasible(pc_str: str, params: List[str]) -> str:
     if pc_str.strip() in ("true", ""):
-        return True
+        return "feasible"
     if pc_str.strip() == "false":
-        return False
+        return "infeasible"
 
     z3_vars = {param: _z3.Int(param) for param in params}
     try:
         constraint = _to_z3(_maude_to_python(pc_str), z3_vars)
     except Exception:
-        return True
+        return "unknown"
 
     solver = _z3.Solver()
     solver.set("timeout", 5000)
     solver.add(constraint)
-    return solver.check() == _z3.sat
+
+    result = solver.check()
+    if result == _z3.sat:
+        return "feasible"
+    if result == _z3.unsat:
+        return "infeasible"
+    return "unknown"
 
 
 def eval_symbolic_expr(expr_str: str, inputs: List[int], params: List[str]) -> Any:
@@ -154,12 +163,11 @@ def check_postcondition_on_path(
     params: List[str],
     post_str: str,
 ) -> Dict[str, Any]:
-    # 1. Clean the postcondition string and normalize boolean literals
     post_str = post_str.strip()
     post_str = re.sub(r"\btrue\b", "True", post_str, flags=re.IGNORECASE)
     post_str = re.sub(r"\bfalse\b", "False", post_str, flags=re.IGNORECASE)
 
-    # 2. Syntax validation
+
     try:
         tree = ast.parse(post_str, mode="eval")
     except Exception as e:
@@ -169,8 +177,7 @@ def check_postcondition_on_path(
             "counterexample": None,
             "substituted_post": post_str,
         }
-
-    # 3. Undefined variables validation
+    
     import builtins
     names = {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
     allowed_names = set(params) | set(final_vars.keys()) | set(dir(builtins))
@@ -217,8 +224,16 @@ def check_postcondition_on_path(
         solver.add(pc_constraint)
     solver.add(_z3.Not(post_constraint))
 
-    if solver.check() != _z3.sat:
+    result = solver.check()
+    if result == _z3.unsat:
         return {"holds": True, "counterexample": None, "substituted_post": substituted_post}
+    if result == _z3.unknown:
+        return {
+            "holds": None,
+            "inconclusive": True,
+            "counterexample": None,
+            "substituted_post": substituted_post,
+        }
 
     counterexample = dict(zip(params, _model_values(solver.model(), z3_vars, params)))
     return {

@@ -1,8 +1,8 @@
-def classify(x, y):
-    if x + y > 10:
-        if x + y < 5:
-            return -1
-        else:
-            return 1
+def classify(score):
+    if score >= 60:
+        return 1
     else:
-        return 0
+        if score >= 80:
+            return 2
+        else:
+            return 0

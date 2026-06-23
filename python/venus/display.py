@@ -118,9 +118,10 @@ def format_symbolic_results(
 
     # ── Global summary counts ──
     total = len(solutions)
-    total_safe = sum(1 for s in solutions if s["type"] == "safe" and s.get("feasible", True))
-    total_bugs = sum(1 for s in solutions if s["type"] == "bug" and s.get("feasible", True))
-    total_unreachable = sum(1 for s in solutions if not s.get("feasible", True))
+    total_safe = sum(1 for s in solutions if s["type"] == "safe" and s.get("feasible") is True)
+    total_bugs = sum(1 for s in solutions if s["type"] == "bug" and s.get("feasible") is True)
+    total_unreachable = sum(1 for s in solutions if s.get("feasible") is False)
+    total_unknown = sum(1 for s in solutions if s.get("feasible") == "unknown")
 
     # ── Header ──
     print()
@@ -137,11 +138,14 @@ def format_symbolic_results(
         safe_paths = [s for s in func_solutions if s["type"] == "safe"]
         bug_paths  = [s for s in func_solutions if s["type"] == "bug"]
 
-        safe_feasible = [s for s in safe_paths if s.get("feasible", True)]
-        bug_feasible = [s for s in bug_paths if s.get("feasible", True)]
+        safe_feasible = [s for s in safe_paths if s.get("feasible") is True]
+        bug_feasible = [s for s in bug_paths if s.get("feasible") is True]
 
-        safe_unreachable = [s for s in safe_paths if not s.get("feasible", True)]
-        bug_unreachable = [s for s in bug_paths if not s.get("feasible", True)]
+        safe_unreachable = [s for s in safe_paths if s.get("feasible") is False]
+        bug_unreachable = [s for s in bug_paths if s.get("feasible") is False]
+
+        safe_unknown = [s for s in safe_paths if s.get("feasible") == "unknown"]
+        bug_unknown = [s for s in bug_paths if s.get("feasible") == "unknown"]
 
         # ── Function sub-header ──
         print(f"\n  Function: {func_name}")
@@ -165,6 +169,8 @@ def format_symbolic_results(
                     check = pc_map[sol_idx]
                     if "error" in check:
                         post_suffix = f"  ERROR: {check['error']}"
+                    elif check.get("inconclusive"):
+                        post_suffix = "  INCONCLUSIVE"
                     elif check["holds"]:
                         post_suffix = "  HOLDS"
                     else:
@@ -203,6 +209,22 @@ def format_symbolic_results(
                 flat_cond = _flatten_condition(path["pc"])
                 _print_path_line(f"      threat {idx}  if ", flat_cond, "  =>  division by zero")
 
+        if safe_unknown or bug_unknown:
+            print()
+            print("    inconclusive (solver undecided):")
+            for path in safe_unknown:
+                idx = safe_indices[id(path)]
+                flat_cond = _flatten_condition(path["pc"])
+                result = _get_result_value(path["variables"])
+                var_info = _format_variables(path["variables"], all_params)
+                _print_path_line(f"      path {idx}  if ", flat_cond, f"  =>  result={result}")
+                if var_info:
+                    print(f"              {var_info}")
+            for path in bug_unknown:
+                idx = bug_indices[id(path)]
+                flat_cond = _flatten_condition(path["pc"])
+                _print_path_line(f"      threat {idx}  if ", flat_cond, "  =>  division by zero")
+
     # ── Summary ──
     print()
     print("-" * LINE_WIDTH)
@@ -210,25 +232,43 @@ def format_symbolic_results(
     parts = [f"{total_safe} safe", f"{total_bugs} bug"]
     if total_unreachable:
         parts.append(f"{total_unreachable} unreachable")
+    if total_unknown:
+        parts.append(f"{total_unknown} inconclusive")
     print(f"  {total} path(s): {', '.join(parts)}")
 
-    # ── Postcondition ──
     if postcondition is not None and pc_results is not None:
         errors = [r["error"] for r in pc_results if "error" in r]
         if errors:
             print(f"  postcondition [{postcondition}]: ERROR - {errors[0]}")
         else:
-            checked_results = [r for r in pc_results if not r.get("unreachable")]
+            checked_results = [
+                r for r in pc_results
+                if not r.get("unreachable") and not r.get("inconclusive")
+            ]
+            inconclusive_results = [r for r in pc_results if r.get("inconclusive")]
             violations = sum(1 for r in checked_results if not r["holds"])
             checked = len(checked_results)
-            if checked == 0:
+            if checked == 0 and not inconclusive_results:
                 print(f"  postcondition [{postcondition}]: holds vacuously (all paths unreachable)")
-            elif violations == 0:
+            elif checked == 0 and inconclusive_results:
+                print(
+                    f"  postcondition [{postcondition}]: cannot verify "
+                    f"({len(inconclusive_results)} path(s) inconclusive)"
+                )
+            elif violations == 0 and not inconclusive_results:
                 print(f"  postcondition [{postcondition}]: holds on all {checked} path(s)")
+            elif violations == 0 and inconclusive_results:
+                print(
+                    f"  postcondition [{postcondition}]: holds on {checked} path(s), "
+                    f"{len(inconclusive_results)} inconclusive"
+                )
             else:
-                print(f"  postcondition [{postcondition}]: violated on {violations}/{checked} path(s)")
+                msg = f"  postcondition [{postcondition}]: violated on {violations}/{checked} path(s)"
+                if inconclusive_results:
+                    msg += f", {len(inconclusive_results)} inconclusive"
+                print(msg)
 
-    if total > 0 and total_safe == 0 and total_bugs == 0:
+    if total > 0 and total_safe == 0 and total_bugs == 0 and total_unknown == 0:
         print()
         print("  hint: all paths are unreachable — try increasing loop")
         print("        depth with -d (e.g. -d 5, -d 10)")

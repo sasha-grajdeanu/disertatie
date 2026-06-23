@@ -1,11 +1,11 @@
-def 'classify ('x, 'y) {
-    if ('x + 'y gt 10) then
-        if ('x + 'y lt 5) then
-            return -1
-        else
-            return 1
-        fi
+def 'classify ('score) {
+    if ('score gte 60) then
+        return 1
     else
-        return 0
+        if ('score gte 80) then
+            return 2
+        else
+            return 0
+        fi
     fi
 }

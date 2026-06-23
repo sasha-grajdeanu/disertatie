@@ -193,7 +193,7 @@ def format_postcondition_violation_tests(
 ) -> str:
     violations = [
         check for check in pc_results
-        if not check["holds"] and check.get("counterexample")
+        if check["holds"] is False and check.get("counterexample")
     ]
     if not violations:
         return ""
@@ -279,7 +279,9 @@ def generate_pytest_suite(
         pc = sol["pc"]
         concrete_inputs = sol.get("_concrete_inputs")
         if concrete_inputs is None:
-            concrete_inputs = solve_path_condition(pc, params)
+            result = solve_path_condition(pc, params)
+            if result["status"] == "sat":
+                concrete_inputs = result["values"]
 
         if concrete_inputs is None:
             omitted_paths += 1
@@ -297,10 +299,6 @@ def generate_pytest_suite(
         safe_cases.append((idx, concrete_inputs, expected, pc))
 
     needs_pytest = len(safe_cases) > 1 or bool(bug_cases) or not (safe_cases or bug_cases)
-    if postcondition and pc_results:
-        has_violations = any(not check["holds"] for check in pc_results)
-        if has_violations:
-            needs_pytest = True
 
     imports = []
     if needs_pytest:
@@ -310,11 +308,6 @@ def generate_pytest_suite(
 
     code += format_safe_tests(test_name, func_name, params, safe_cases)
     code += format_bug_tests(test_name, func_name, params, bug_cases)
-
-    if postcondition and pc_results:
-        code += format_postcondition_violation_tests(
-            test_name, func_name, params, postcondition, pc_results
-        )
 
     if not safe_cases and not bug_cases:
         code += f"""
@@ -326,11 +319,5 @@ def test_{test_name}_has_concrete_scenarios():
     with open(pytest_path, "w") as f:
         f.write(code)
 
-    violation_count = sum(
-        1 for check in (pc_results or [])
-        if not check["holds"] and check.get("counterexample")
-    )
     parts = f"{len(safe_cases)} safe, {len(bug_cases)} bug, {omitted_paths} omitted"
-    if violation_count:
-        parts += f", {violation_count} postcondition violation(s)"
     print(f"  Pytest suite:   {pytest_path} ({parts})")

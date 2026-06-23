@@ -67,9 +67,10 @@ def _write_symbolic_json_report(
 ) -> str:
     json_path = _symbolic_json_path(file_path)
 
-    safe_count = sum(1 for sol in solutions if sol.get("type") == "safe" and sol.get("feasible", True))
-    bug_count  = sum(1 for sol in solutions if sol.get("type") == "bug" and sol.get("feasible", True))
-    unreachable_count = sum(1 for sol in solutions if not sol.get("feasible", True))
+    safe_count = sum(1 for sol in solutions if sol.get("type") == "safe" and sol.get("feasible") is True)
+    bug_count  = sum(1 for sol in solutions if sol.get("type") == "bug" and sol.get("feasible") is True)
+    unreachable_count = sum(1 for sol in solutions if sol.get("feasible") is False)
+    unknown_count = sum(1 for sol in solutions if sol.get("feasible") == "unknown")
 
     pc_map: Dict[int, Dict[str, Any]] = {}
     if pc_results:
@@ -85,8 +86,10 @@ def _write_symbolic_json_report(
             "path_condition": sol.get("pc"),
             "variables": sol.get("variables", {}),
         }
-        if not sol.get("feasible", True):
+        if sol.get("feasible") is False:
             path_entry["feasible"] = False
+        elif sol.get("feasible") == "unknown":
+            path_entry["feasible"] = "unknown"
         if i in pc_map:
             check = pc_map[i]
             if "error" in check:
@@ -108,6 +111,7 @@ def _write_symbolic_json_report(
             "safe_paths": safe_count,
             "bug_paths": bug_count,
             "unreachable_paths": unreachable_count,
+            "unknown_paths": unknown_count,
         },
         "source_code": code,
         "paths": paths_json,
@@ -125,14 +129,19 @@ def _write_symbolic_json_report(
                 "violations": 0,
             }
         else:
-            checked_checks = [check for check in all_checks if not check.get("unreachable")]
-            violations = sum(1 for check in checked_checks if not check["holds"])
+            checked_checks = [
+                check for check in all_checks
+                if not check.get("unreachable") and not check.get("inconclusive")
+            ]
+            inconclusive_checks = [check for check in all_checks if check.get("inconclusive")]
+            violations = sum(1 for check in checked_checks if check["holds"] is False)
             checked = len(checked_checks)
             report["postcondition"] = postcondition
             report["postcondition_summary"] = {
                 "checked_paths": checked,
                 "passing": checked - violations,
                 "violations": violations,
+                "inconclusive": len(inconclusive_checks),
             }
 
     with open(json_path, "w") as f:
@@ -179,13 +188,15 @@ def run_test_generator(
     dead_code_paths: List[Dict[str, Any]] = []
 
     for sol in solutions:
-        concrete_inputs = solve_path_condition(sol["pc"], params)
-        if concrete_inputs is not None:
-            sol["_concrete_inputs"] = concrete_inputs
+        result = solve_path_condition(sol["pc"], params)
+        if result["status"] == "sat":
+            sol["_concrete_inputs"] = result["values"]
             sol["feasible"] = True
-        else:
+        elif result["status"] == "unsat":
             sol["feasible"] = False
             dead_code_paths.append(sol)
+        else:
+            sol["feasible"] = "unknown"
 
 
 
@@ -196,13 +207,22 @@ def run_test_generator(
         for i, sol in enumerate(solutions, start=1):
             if sol.get("type") != "safe":
                 continue
-            if not sol.get("feasible", True):
+            if sol.get("feasible") is False:
                 pc_results.append({
                     "solution_index": i,
                     "holds": True,
                     "counterexample": None,
                     "substituted_post": postcondition,
                     "unreachable": True,
+                })
+                continue
+            if sol.get("feasible") == "unknown":
+                pc_results.append({
+                    "solution_index": i,
+                    "holds": None,
+                    "inconclusive": True,
+                    "counterexample": None,
+                    "substituted_post": postcondition,
                 })
                 continue
             check_result = check_postcondition_on_path(
