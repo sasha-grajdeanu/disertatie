@@ -1,2 +1,0 @@
-def unsafe_divide(x, y):
-    return x // y

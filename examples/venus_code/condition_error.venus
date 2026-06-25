@@ -1,7 +1,0 @@
-def 'condition_error ('x, 'y) {
-    if ('x gt (10 / 'y)) then
-        return 1
-    else
-        return 0
-    fi
-}

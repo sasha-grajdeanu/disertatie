@@ -1,8 +1,0 @@
-def 'countdown ('n, 'start) {
-    'total := 'start
-    while ('n gt 0) do
-        'total := 'total - 'n
-        'n := 'n - 1
-    od
-    return 'total
-}

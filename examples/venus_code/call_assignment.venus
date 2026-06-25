@@ -1,8 +1,0 @@
-def 'call_assignment ('n) {
-    'value := call 'inc ('n)
-    return 'value
-}
-
-def 'inc ('x) {
-    return 'x + 1
-}

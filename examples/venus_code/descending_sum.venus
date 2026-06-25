@@ -1,8 +1,0 @@
-def 'descending_sum ('n) {
-    's := 0
-    while ('n gt 0) do
-        's := 's + 'n
-        'n := 'n - 1
-    od
-    return 's
-}
