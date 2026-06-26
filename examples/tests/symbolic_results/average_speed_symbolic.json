@@ -14,7 +14,8 @@
     "symbolic_paths": 2,
     "safe_paths": 1,
     "bug_paths": 1,
-    "unreachable_paths": 0
+    "unreachable_paths": 0,
+    "unknown_paths": 0
   },
   "source_code": "def 'average_speed ('distance, 'start, 'finish) {\n    'elapsed := 'finish - 'start\n    return 'distance / 'elapsed\n}",
   "paths": [
@@ -44,5 +45,5 @@
       }
     }
   ],
-  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)\nresult Inst: def 'average_speed('distance, 'start, 'finish){'elapsed := 'finish - 'start return 'distance / 'elapsed}\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 6)\nstates: 8  rewrites: 75 in 0ms cpu (0ms real) (75834 rewrites/second)\nS:SymState --> sBug['finish - 'start eq 0 | tested('average_speed), ('distance ->s 'distance), ('elapsed ->s 'finish - 'start), ('finish ->s 'finish), ('start ->s 'start), 'average_speed =>['distance, 'start, 'finish, 'elapsed := 'finish - 'start return 'distance / 'elapsed]]\n\nSolution 2 (state 7)\nstates: 8  rewrites: 75 in 0ms cpu (0ms real) (75834 rewrites/second)\nS:SymState --> sState[cNil | 'finish - 'start neq 0 | tested('average_speed), ('distance ->s 'distance), ('elapsed ->s 'finish - 'start), ('finish ->s 'finish), ('result ->s 'distance / ('finish - 'start)), ('start ->s 'start), 'average_speed =>['distance, 'start, 'finish, 'elapsed := 'finish - 'start return 'distance / 'elapsed]]\n\nNo more solutions.\nstates: 8  rewrites: 75 in 0ms cpu (0ms real) (75834 rewrites/second)\nBye.\n"
+  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)\nresult Inst: def 'average_speed('distance, 'start, 'finish){'elapsed := 'finish - 'start return 'distance / 'elapsed}\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 6)\nstates: 8  rewrites: 75 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sBug['finish - 'start eq 0 | tested('average_speed), ('distance ->s 'distance), ('elapsed ->s 'finish - 'start), ('finish ->s 'finish), ('start ->s 'start), 'average_speed =>['distance, 'start, 'finish, 'elapsed := 'finish - 'start return 'distance / 'elapsed]]\n\nSolution 2 (state 7)\nstates: 8  rewrites: 75 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sState[cNil | 'finish - 'start neq 0 | tested('average_speed), ('distance ->s 'distance), ('elapsed ->s 'finish - 'start), ('finish ->s 'finish), ('result ->s 'distance / ('finish - 'start)), ('start ->s 'start), 'average_speed =>['distance, 'start, 'finish, 'elapsed := 'finish - 'start return 'distance / 'elapsed]]\n\nNo more solutions.\nstates: 8  rewrites: 75 in 0ms cpu (0ms real) (~ rewrites/second)\nBye.\n"
 }
