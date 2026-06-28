@@ -1,0 +1,8 @@
+def 'apply_bonus ('points) {
+    'enabled := 0
+    if ('enabled gt 0) then
+        return 'points * 2
+    else
+        return 'points
+    fi
+}

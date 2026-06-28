@@ -1,0 +1,44 @@
+{
+  "status": "ok",
+  "source_file": "examples/venus_code/growth_rate.venus",
+  "loop_depth": 3,
+  "functions": {
+    "growth_rate": [
+      "old",
+      "new"
+    ]
+  },
+  "summary": {
+    "functions": 1,
+    "symbolic_paths": 2,
+    "safe_paths": 1,
+    "bug_paths": 1,
+    "unreachable_paths": 0,
+    "unknown_paths": 0
+  },
+  "source_code": "def 'growth_rate ('old, 'new) {\n    return (('new - 'old) * 100) / 'old\n}",
+  "paths": [
+    {
+      "index": 1,
+      "type": "bug",
+      "tested_func": "growth_rate",
+      "path_condition": "'old eq 0",
+      "variables": {
+        "new": "'new",
+        "old": "'old"
+      }
+    },
+    {
+      "index": 2,
+      "type": "safe",
+      "tested_func": "growth_rate",
+      "path_condition": "'old neq 0",
+      "variables": {
+        "new": "'new",
+        "old": "'old",
+        "result": "(100 * ('new - 'old)) / 'old"
+      }
+    }
+  ],
+  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)\nresult Inst: def 'growth_rate('old, 'new){return (100 * ('new - 'old)) / 'old}\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 4)\nstates: 6  rewrites: 44 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sBug['old eq 0 | tested('growth_rate), ('new ->s 'new), ('old ->s 'old), 'growth_rate =>['old, 'new, return (100 * ('new - 'old)) / 'old]]\n\nSolution 2 (state 5)\nstates: 6  rewrites: 44 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sState[cNil | 'old neq 0 | tested('growth_rate), ('new ->s 'new), ('old ->s 'old), ('result ->s (100 * ('new - 'old)) / 'old), 'growth_rate =>['old, 'new, return (100 * ('new - 'old)) / 'old]]\n\nNo more solutions.\nstates: 6  rewrites: 44 in 0ms cpu (0ms real) (~ rewrites/second)\nBye.\n"
+}

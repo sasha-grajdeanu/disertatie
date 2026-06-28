@@ -1,0 +1,2 @@
+def growth_rate(old, new):
+    return ((new - old) * 100) // old

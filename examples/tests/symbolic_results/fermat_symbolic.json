@@ -1,0 +1,37 @@
+{
+  "status": "ok",
+  "source_file": "examples/venus_code/fermat.venus",
+  "loop_depth": 3,
+  "functions": {
+    "fermat": [
+      "x",
+      "y",
+      "z"
+    ]
+  },
+  "summary": {
+    "functions": 1,
+    "symbolic_paths": 1,
+    "safe_paths": 1,
+    "bug_paths": 0,
+    "unreachable_paths": 0,
+    "unknown_paths": 0
+  },
+  "source_code": "def 'fermat ('x, 'y, 'z) {\n    'val := 'x * 'x * 'x + 'y * 'y * 'y - 'z * 'z * 'z\n    return 'val\n}",
+  "paths": [
+    {
+      "index": 1,
+      "type": "safe",
+      "tested_func": "fermat",
+      "path_condition": "true",
+      "variables": {
+        "result": "('x * 'x * 'x + 'y * 'y * 'y) - 'z * 'z * 'z",
+        "val": "('x * 'x * 'x + 'y * 'y * 'y) - 'z * 'z * 'z",
+        "x": "'x",
+        "y": "'y",
+        "z": "'z"
+      }
+    }
+  ],
+  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)\nresult Inst: def 'fermat('x, 'y, 'z){'val := ('x * 'x * 'x + 'y * 'y * 'y) - 'z * 'z * 'z return 'val}\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 6)\nstates: 7  rewrites: 208 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sState[cNil | true | tested('fermat), ('result ->s ('x * 'x * 'x + 'y * 'y * 'y) - 'z * 'z * 'z), ('val ->s ('x * 'x * 'x + 'y * 'y * 'y) - 'z * 'z * 'z), ('x ->s 'x), ('y ->s 'y), ('z ->s 'z), 'fermat =>['x, 'y, 'z, 'val := ('x * 'x * 'x + 'y * 'y * 'y) - 'z * 'z * 'z return 'val]]\n\nNo more solutions.\nstates: 7  rewrites: 208 in 0ms cpu (0ms real) (~ rewrites/second)\nBye.\n"
+}

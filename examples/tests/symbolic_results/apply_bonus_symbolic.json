@@ -1,0 +1,45 @@
+{
+  "status": "ok",
+  "source_file": "examples/venus_code/apply_bonus.venus",
+  "loop_depth": 3,
+  "functions": {
+    "apply_bonus": [
+      "points"
+    ]
+  },
+  "summary": {
+    "functions": 1,
+    "symbolic_paths": 2,
+    "safe_paths": 1,
+    "bug_paths": 0,
+    "unreachable_paths": 1,
+    "unknown_paths": 0
+  },
+  "source_code": "def 'apply_bonus ('points) {\n    'enabled := 0\n    if ('enabled gt 0) then\n        return 'points * 2\n    else\n        return 'points\n    fi\n}",
+  "paths": [
+    {
+      "index": 1,
+      "type": "safe",
+      "tested_func": "apply_bonus",
+      "path_condition": "0 gt 0",
+      "variables": {
+        "enabled": "0",
+        "points": "'points",
+        "result": "'points * 2"
+      },
+      "feasible": false
+    },
+    {
+      "index": 2,
+      "type": "safe",
+      "tested_func": "apply_bonus",
+      "path_condition": "0 lte 0",
+      "variables": {
+        "enabled": "0",
+        "points": "'points",
+        "result": "'points"
+      }
+    }
+  ],
+  "maude_output": "==========================================\nreduce in TEST-RUNNER : pgm .\nrewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)\nresult Inst: def 'apply_bonus('points){'enabled := 0 if 'enabled gt 0 then return 'points * 2 else return 'points fi}\n==========================================\nsearch [1000, 100000] in TEST-RUNNER : sState[pgm # cSymTest | true | empty] =>! S:SymState .\n\nSolution 1 (state 8)\nstates: 10  rewrites: 113 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sState[cNil | 0 gt 0 | tested('apply_bonus), ('enabled ->s 0), ('points ->s 'points), ('result ->s 'points * 2), 'apply_bonus =>['points, 'enabled := 0 if 'enabled gt 0 then return 'points * 2 else return 'points fi]]\n\nSolution 2 (state 9)\nstates: 10  rewrites: 113 in 0ms cpu (0ms real) (~ rewrites/second)\nS:SymState --> sState[cNil | 0 lte 0 | tested('apply_bonus), ('enabled ->s 0), ('points ->s 'points), ('result ->s 'points), 'apply_bonus =>['points, 'enabled := 0 if 'enabled gt 0 then return 'points * 2 else return 'points fi]]\n\nNo more solutions.\nstates: 10  rewrites: 113 in 0ms cpu (0ms real) (~ rewrites/second)\nBye.\n"
+}

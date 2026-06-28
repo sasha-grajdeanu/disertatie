@@ -1,0 +1,3 @@
+def fermat(x, y, z):
+    val = x * x * x + y * y * y - z * z * z
+    return val
